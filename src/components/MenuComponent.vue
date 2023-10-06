@@ -16,8 +16,9 @@
                 </ul>
             </li>
         </ul>
+        <TConfirmDialog></TConfirmDialog>
+        <TToast></TToast>
 
-    
     </div>
 </template>
 
@@ -25,7 +26,10 @@
 <script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-
+import { useConfirm } from 'primevue/useconfirm';
+import { getAuth, signOut } from 'firebase/auth';
+import { app } from '@/firebase/config';
+import { useToast } from 'primevue/usetoast';
 export default {
     setup() {
         const menuItems = ref([
@@ -50,25 +54,48 @@ export default {
                 ]
             },
             { id: 9, label: 'Kullanıcı Yönetimi', active: false, icons: 'pi pi-user' },
-            {id:10,label:'Çıkış Yap',active:false,icons:'pi pi-power-off'}
+            { id: 10, label: 'Çıkış Yap', active: false, icons: 'pi pi-power-off' }
 
         ]);
         const router = useRouter();
-        const isCurrentComponent = ref('');
+        const confirm = useConfirm();
+        const auth = getAuth(app);
+        const toats = useToast();
+        //Cikis icin confirm dialog
+        const confirmDialog = () => {
+            confirm.require({
+                message: 'Çıkış yapmak istediğine emin misin ?',
+                header: 'Çıkış İşlemi',
+                acceptClass: 'p-button-help',
+                acceptLabel: 'Evet',
+                accept: () => {
+                    signOut(auth).then(() => {
+                        toats.add({
+                            life:1100,summary:'Çıkış İşlemi',detail:'Çıkış İşlemi Gerçekleşti',severity:'success'
+                        });
+                        router.push({name:'LoginView'});
+                    })
+                },
+                rejectLabel: 'İptal',
 
+                reject: () => {
+
+                }
+            })
+        }
+
+        // Alt menu yoksa
         const toggleSubMenu = (selectedMenuItem) => {
             menuItems.value.forEach(menuItem => {
                 menuItem.active = menuItem === selectedMenuItem;
 
             });
-            if (selectedMenuItem.id == 4) {
-                console.log("Selected ID")
-                isCurrentComponent.value = "ContactView"
+            if (selectedMenuItem.id == 10) {
+                confirmDialog();
             }
-
-            console.log("Clicked", selectedMenuItem)
         }
 
+        //Alt menu varsa
         const subSelected = (id) => {
             switch (id) {
                 case 2:
@@ -81,7 +108,7 @@ export default {
             }
         }
 
-        return { menuItems, toggleSubMenu, subSelected, isCurrentComponent }
+        return { menuItems, toggleSubMenu, subSelected }
 
     }
 
@@ -89,11 +116,11 @@ export default {
 </script>
 
 <style scoped>
-.content-container {
-  flex: 1;
-  width: 86%;
-  overflow: hidden;
+.btnClass {
+    background-color: pink;
+    color: pink;
 }
+
 i {
     color: white;
     margin: 8px;

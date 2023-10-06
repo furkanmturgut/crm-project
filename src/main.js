@@ -3,6 +3,7 @@ import App from "./App.vue";
 import router from "@/router/router.js";
 import PrimeVue from "primevue/config";
 import 'primeicons/primeicons.css';
+import ConfirmationService from 'primevue/confirmationservice';
 
 import "primevue/resources/themes/lara-light-indigo/theme.css";
 import InputText from "primevue/inputtext";
@@ -11,15 +12,18 @@ import ProgressSpinner from "primevue/progressspinner";
 import Toast from "primevue/toast";
 import ToastService from "primevue/toastservice";
 import PanelMenu from 'primevue/panelmenu';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 const app = createApp(App);
 app.use(PrimeVue);
 app.use(ToastService);
 app.use(router);
+app.use(ConfirmationService);
 
 app.component("TInputText", InputText);
 app.component("TButton", Button);
 app.component("TSpinner", ProgressSpinner);
 app.component("TToast", Toast);
 app.component("TPanelMenu",PanelMenu);
+app.component("TConfirmDialog",ConfirmDialog);
 app.mount("#app");
