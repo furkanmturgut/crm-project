@@ -61,6 +61,7 @@ export default {
         const confirm = useConfirm();
         const auth = getAuth(app);
         const toats = useToast();
+
         //Cikis icin confirm dialog
         const confirmDialog = () => {
             confirm.require({
@@ -73,14 +74,11 @@ export default {
                         toats.add({
                             life:1100,summary:'Çıkış İşlemi',detail:'Çıkış İşlemi Gerçekleşti',severity:'success'
                         });
-                        router.push({name:'LoginView'});
+                        router.go({name:'LoginView'});
                     })
                 },
                 rejectLabel: 'İptal',
-
-                reject: () => {
-
-                }
+                reject: () => {}
             })
         }
 
@@ -90,7 +88,7 @@ export default {
                 menuItem.active = menuItem === selectedMenuItem;
 
             });
-            if (selectedMenuItem.id == 10) {
+            if (selectedMenuItem.id === 10) {
                 confirmDialog();
             }
         }
@@ -116,11 +114,6 @@ export default {
 </script>
 
 <style scoped>
-.btnClass {
-    background-color: pink;
-    color: pink;
-}
-
 i {
     color: white;
     margin: 8px;
