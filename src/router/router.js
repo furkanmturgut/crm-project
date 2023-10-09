@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
 import CustomerView from "@/views/customers/CustomerView.vue";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import ProjectView from "@/views/ProjectView.vue";
+import OffersView from "@/views/OffersView.vue";
 
 const routes = [
   {
@@ -22,6 +24,20 @@ const routes = [
     props: true,
     meta: { requiresAuth: true },
   },
+  {
+    path: "/project",
+    name: "ProjectView",
+    component: ProjectView,
+    props: true,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/offers",
+    name: "OffersView",
+    component: OffersView,
+    props: true,
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({
@@ -36,7 +52,7 @@ router.beforeEach((to, from, next) => {
   onAuthStateChanged(auth, async (user) => {
     if (requiresAuth && !user) {
       next("/");
-    } else if (requiresAuth == false && user) {
+    } else if (requiresAuth === false && user) {
       next("/home");
     } else {
       next();

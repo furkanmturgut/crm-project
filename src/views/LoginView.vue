@@ -1,6 +1,6 @@
 <template>
     <div v-if="isSpinner !== true" class="loginArea">
-        <img class="iconStyle" src="@/assets/logo.png">
+        <img alt="Turkuvaz" class="iconStyle" src="@/assets/logo.png">
         <TInputText class="loginStyle" v-model="username" placeholder="Email"></TInputText>
         <TInputText v-model="password" type="password" class="loginStyle" placeholder="Parola"></TInputText>
         <TButton class="loginBtn" label="Giriş Yap" @click="login"></TButton>
@@ -53,7 +53,7 @@ export default {
 
 <style>
 * {
-    margin: 0px;
+    margin: 0;
 }
 
 .iconStyle {

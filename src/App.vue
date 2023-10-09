@@ -36,8 +36,10 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300&display=swap');
 * {
-  margin: 0px;
+  margin: 0;
+  font-family: 'Cairo', sans-serif;
 }
 
 .app-container {

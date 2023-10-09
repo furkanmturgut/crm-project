@@ -1,7 +1,7 @@
 <template >
     <div class="menu" style="background-color: turquoise; height:100vh ; ">
         <div style="display: flex; align-items: center; justify-content: center; ">
-            <img src="@/assets/logo.png" style="width:70px; height: 70px; margin: 20px 0;">
+            <img alt="Turkuvaz" src="@/assets/logo.png" style="width:70px; height: 70px; margin: 20px 0;">
         </div>
         <ul>
             <li v-for="menuItem in menuItems" :key="menuItem.label" @click="toggleSubMenu(menuItem)"
@@ -54,7 +54,9 @@ export default {
                 ]
             },
             { id: 9, label: 'Kullanıcı Yönetimi', active: false, icons: 'pi pi-user' },
-            { id: 10, label: 'Çıkış Yap', active: false, icons: 'pi pi-power-off' }
+
+            { id: 10, label: 'Projeler & Ürünler', active: false, icons: 'pi pi-folder-open' },
+            { id: 11, label: 'Çıkış Yap', active: false, icons: 'pi pi-power-off' }
 
         ]);
         const router = useRouter();
@@ -72,13 +74,13 @@ export default {
                 accept: () => {
                     signOut(auth).then(() => {
                         toats.add({
-                            life:1100,summary:'Çıkış İşlemi',detail:'Çıkış İşlemi Gerçekleşti',severity:'success'
+                            life: 1100, summary: 'Çıkış İşlemi', detail: 'Çıkış İşlemi Gerçekleşti', severity: 'success'
                         });
-                        router.go({name:'LoginView'});
+                        router.go({ name: 'LoginView' });
                     })
                 },
                 rejectLabel: 'İptal',
-                reject: () => {}
+                reject: () => { }
             })
         }
 
@@ -88,8 +90,12 @@ export default {
                 menuItem.active = menuItem === selectedMenuItem;
 
             });
-            if (selectedMenuItem.id === 10) {
+            if (selectedMenuItem.id === 11) {
                 confirmDialog();
+            } else if (selectedMenuItem.id === 1) {
+                router.push({ name: 'HomeView' });
+            } else if (selectedMenuItem.id == 10) {
+                router.push({ name: "ProjectView" })
             }
         }
 
@@ -100,8 +106,8 @@ export default {
                     router.push({ name: "CustomerView" })
                     break;
 
-                case 4:
-
+                case 5:
+                    router.push({ name: 'OffersView' });
                     break;
             }
         }
