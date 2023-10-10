@@ -125,8 +125,7 @@ export default {
         const saveCustomer = async () => {
             errorState.value.spinner = true;
             if (fullNameRegex.test(companyPerson.value) &&
-                phoneRegex.test(companyPhone.value) && emailRegex.test(companyMail.value) && companyName.value.length >= 4 && companyAddress.value.length >= 10) {
-
+                phoneRegex.test(companyPhone.value) && emailRegex.test(companyMail.value) && companyName.value.length >= 4 && companyAddress.value.length >= 10 && selectCustomerType.value != null) {
 
                 const customerData = {
                     compName: companyName.value,
@@ -150,7 +149,6 @@ export default {
 
             }
         }
-
 
         return { companyName, companyPerson, companyPhone, companyMail, companyAddress, formValidation, errorMsg, errorState, saveCustomer, selectCustomerType }
     }

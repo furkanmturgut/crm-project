@@ -22,7 +22,9 @@ import InputMask from 'primevue/inputmask';
 import RadioButton from 'primevue/radiobutton';
 import FileUpload from 'primevue/fileupload';
 import AutoComplete from 'primevue/autocomplete';
-
+import Accordion from 'primevue/accordion';
+import AccordionTab from 'primevue/accordiontab';
+import Knob from 'primevue/knob';
 
 const app = createApp(App);
 app.use(PrimeVue);
@@ -45,5 +47,8 @@ app.component("TInputMaskView",InputMask);
 app.component("TRadioButton",RadioButton);
 app.component("TFileUpload",FileUpload);
 app.component("TAutoComplete",AutoComplete);
+app.component("TAccordion",Accordion);
+app.component("TAccordionTab",AccordionTab);
+app.component("TKnob",Knob);
 
 app.mount("#app");

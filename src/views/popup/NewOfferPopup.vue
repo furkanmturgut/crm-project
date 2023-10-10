@@ -2,7 +2,8 @@
     <form @submit.prevent="sendToOffer">
         <div class="offer-area">
             <label>Mail atılacak firmayı arayın</label>
-            <TAutoComplete  v-model="searchCompany" :suggestions="items" @complete="search"></TAutoComplete>
+            <TAutoComplete inputStyle="width:100%" v-model="searchCompany" @change="selectCompany" :suggestions="items"
+                optionLabel="name" @complete="search"></TAutoComplete>
 
             <label>Gönderilecek Email</label>
             <TInputText placeholder="Email" v-model="sendMail"></TInputText>
@@ -11,12 +12,14 @@
             <TInputText placeholder="Başlık" v-model="sendTitle"></TInputText>
 
             <label>Konu İçeriği</label>
-            <TInputText placeholder="İçerik" v-model="sendContent"></TInputText>
+            <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="sendContent"></TextArea>
 
             <label>PDF Dosyası</label>
             <TFileUpload mode="basic" chooseLabel="Yükle" accept="application/pdf" @upload="pdfUpload"></TFileUpload>
 
             <TButton class="btn-style" type="submit" label="GÖNDER"></TButton>
+
+            <TToast></TToast>
         </div>
     </form>
 </template>
@@ -27,6 +30,8 @@ import { serverTimestamp } from 'firebase/firestore';
 import addOfferMail from '@/firebase/addOfferMail';
 import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
+import { useToast } from 'primevue/usetoast';
+import { useRouter } from 'vue-router';
 export default {
     name: "NewOfferPopup",
     setup() {
@@ -34,9 +39,11 @@ export default {
         const sendMail = ref(null);
         const sendTitle = ref(null);
         const sendContent = ref(null);
+        const router = useRouter();
         const firestore = getFirestore(app);
         const customerList = ref([]);
         const searchCompany = ref(null)
+        const toast = useToast();
         const items = ref([]);
         const getUserFunc = (async () => {
             const q = query(collection(firestore, "customers"));
@@ -48,22 +55,26 @@ export default {
         });
         getUserFunc();
 
-        console.log("Gelen veri : ", customerList.value);
-
         const search = () => {
+            items.value = [];
             const filteredUser = customerList.value.filter((item) => {
                 return item.compName.toLowerCase().includes(searchCompany.value.toLowerCase());
             });
 
             filteredUser.forEach((item) => {
                 items.value.push({
-                    name: item.compName
+                    name: item.compName,
+                    mail: item.compEmail
                 });
-                console.log("Filtered : ", items.value);
             })
         }
-        console.log("Filtered : ", items.value);
 
+        const selectCompany = () => {
+            const compMail = searchCompany.value.mail
+            if (compMail != undefined) {
+                sendMail.value = compMail;
+            }
+        }
 
         const sendToOffer = async () => {
             if (emailRegex.test(sendMail.value) && sendTitle.value != null && sendContent.value != null) {
@@ -73,16 +84,23 @@ export default {
                 const mailDetail = ({
                     send: sendMail.value,
                     title: sendTitle.value,
-                    content: sendTitle.value,
+                    content: sendContent.value,
                     mailDate: serverTimestamp()
                 });
 
-                await addOfferMail(mailDetail)
+                await addOfferMail(mailDetail);
+                toast.add({
+                    life:1200,severity:'success',summary:'Mail Gönderme',detail:'Mail başarıyla yollandı.'
+                });
+
+                setTimeout(() => {
+                    router.go({name:"OffersView"})
+                }, 1500);
 
             }
         }
 
-        return { sendToOffer, sendMail, sendContent, sendTitle, search, searchCompany, items }
+        return { sendToOffer, sendMail, sendContent, sendTitle, search, searchCompany, items, selectCompany }
     }
 
 }
