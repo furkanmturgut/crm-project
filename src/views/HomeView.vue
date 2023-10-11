@@ -1,13 +1,12 @@
 <template>
-  <h1>HomeView Chart.js</h1>
+  <h1>HomeView Chart.js </h1>
 </template>
 
 <script>
 
 export default {
-  setup() {
+  name:"HomeView",
 
-  }
 
 }
 </script>

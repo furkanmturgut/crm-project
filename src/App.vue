@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <div v-if="isLogged">
-      <menu-component></menu-component>
+    <div v-if="isAdmin">
+      <menu-component :is-user="isUser"></menu-component>
     </div>
     <div class="componentArea">
       <router-view></router-view>
@@ -18,19 +18,24 @@ import { onMounted, ref } from 'vue';
 export default {
   components: { MenuComponent },
   setup() {
-    const isLogged = ref(false);
+    const isAdmin = ref(false);
+    const isUser = ref(false);
     const auth = getAuth(app);
     onMounted(() => {
      
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          isLogged.value = true;          
+          isAdmin.value = true;
+          if(user.displayName === "userCompany"){
+            isUser.value = true;
+          }
         }
+
       });
     });
 
 
-    return { isLogged }
+    return { isAdmin ,isUser}
   }
 }
 </script>

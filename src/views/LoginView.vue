@@ -39,7 +39,7 @@ export default {
             }).catch(() => {
               isSpinner.value = false;
               toast.add({
-                    severity: 'info', summary: 'Bilgi', detail: 'Giriş Yapılamadı. Tekrar Deneyin', life: 1000
+                    severity: 'warn', summary: 'Bilgi', detail: 'Giriş Yapılamadı. Tekrar Deneyin', life: 1000
                 });
 
             });

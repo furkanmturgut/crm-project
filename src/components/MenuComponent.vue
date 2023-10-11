@@ -1,9 +1,9 @@
 <template >
-    <div class="menu" style="background-color: turquoise; height:100vh ; ">
+    <div style="background-color: turquoise; height:100vh; width: 100% ">
         <div style="display: flex; align-items: center; justify-content: center; ">
             <img alt="Turkuvaz" src="@/assets/logo.png" style="width:70px; height: 70px; margin: 20px 0;">
         </div>
-        <ul>
+        <ul v-if="isUser === false">
             <li v-for="menuItem in menuItems" :key="menuItem.label" @click="toggleSubMenu(menuItem)"
                 :style="{ backgroundColor: menuItem.active ? 'black' : 'initial' }">
                 <i :class="menuItem.icons" @click="toggleSubMenu(menuItem)"></i>
@@ -16,6 +16,16 @@
                 </ul>
             </li>
         </ul>
+        <!-- eger kullanici giris yaptiysa -->
+        <ul v-if="isUser === true">
+            <li v-for="user in userItems" :key="user.label" @click="toggleSubMenu(user)"
+                :style="{ backgroundColor: user.active ? 'black' : 'initial' }">
+                <i :class="user.icons" @click="toggleSubMenu(user)"></i>
+                <a href="#">{{ user.label }}</a>
+
+            </li>
+        </ul>
+
         <TConfirmDialog></TConfirmDialog>
         <TToast></TToast>
 
@@ -31,7 +41,16 @@ import { getAuth, signOut } from 'firebase/auth';
 import { app } from '@/firebase/config';
 import { useToast } from 'primevue/usetoast';
 export default {
+    props: ["isUser"],
     setup() {
+        const userItems = ref([
+            { id: 15, label: 'Anasayfa', active: true, icons: 'pi pi-home' },
+            { id: 12, label: 'Projelerim', active: false, icons: 'pi pi-folder-open', isUsers: true },
+            { id: 13, label: 'Talep Oluştur', active: false, icons: 'pi pi-file-edit', isUsers: true },
+            { id: 14, label: 'Bildirimler', active: false, icons: 'pi pi-inbox', isUsers: true },
+        ]);
+
+
         const menuItems = ref([
             { id: 1, label: 'Anasayfa', active: true, icons: 'pi pi-home' },
             {
@@ -94,7 +113,7 @@ export default {
                 confirmDialog();
             } else if (selectedMenuItem.id === 1) {
                 router.push({ name: 'HomeView' });
-            } else if (selectedMenuItem.id == 10) {
+            } else if (selectedMenuItem.id === 10) {
                 router.push({ name: "ProjectView" })
             }
         }
@@ -112,7 +131,7 @@ export default {
             }
         }
 
-        return { menuItems, toggleSubMenu, subSelected }
+        return { menuItems, toggleSubMenu, subSelected, userItems }
 
     }
 

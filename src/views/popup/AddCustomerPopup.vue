@@ -22,6 +22,11 @@
             </TInputText>
             <small v-if="errorState.mail">{{ errorMsg.mail }}</small>
 
+            <label for="compPass">Firma Parola</label>
+            <TInputText id="compPass" placeholder="Firma Parolası" v-model="companyPass" @input="formValidation(5)">
+            </TInputText>
+            <small v-if="errorState.pass">{{ errorMsg.pass }}</small>
+
             <label for="compAddress">Firma Adresi</label>
             <TextArea id="compAddress" placeholder="Firma Adresi" autoResize rows="3" cols="10" v-model="companyAddress"
                 @input="formValidation(4)"></TextArea>
@@ -56,15 +61,17 @@ import addCustomer from '@/firebase/addCustomer';
 import { serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
+import createUser from '@/firebase/createUser.js';
 export default {
     name: "AddCustomerPopup",
     setup() {
-        const errorState = ref({ name: false, person: false, phone: false, mail: false, address: false, spinner: false });
-        const errorMsg = ref({ name: null, person: null, phone: null, mail: null, address: null });
+        const errorState = ref({ name: false, person: false, phone: false, mail: false, address: false, spinner: false,pass:false });
+        const errorMsg = ref({ name: null, person: null, phone: null, mail: null, address: null,pass:null });
         const companyName = ref('');
         const companyPerson = ref(null);
         const companyPhone = ref(null);
         const companyMail = ref(null);
+        const companyPass = ref('');
         const companyAddress = ref('');
         const router = useRouter();
         const toast = useToast();
@@ -119,6 +126,14 @@ export default {
                         errorState.value.address = false;
                     }
                     break;
+                case 5:
+                    if (companyPass.value.length < 6){
+                        errorState.value.pass = true;
+                        errorMsg.value.pass = "En az 6 karakter parola belirleyin";
+                    }else {
+                        errorState.value.pass = false;
+                    }
+                        break;
             }
         }
 
@@ -136,7 +151,7 @@ export default {
                     addDate: serverTimestamp(),
                     customerType: selectCustomerType.value
                 };
-
+                createUser(companyMail.value,companyPass.value);
                 await addCustomer(customerData);
                 toast.add({
                     severity: 'success', life: 1500, summary: 'Müşteri Kayıt', detail: "Müşteri başarıyla eklendi."
@@ -150,7 +165,7 @@ export default {
             }
         }
 
-        return { companyName, companyPerson, companyPhone, companyMail, companyAddress, formValidation, errorMsg, errorState, saveCustomer, selectCustomerType }
+        return { companyName, companyPerson, companyPhone, companyMail, companyAddress, formValidation, errorMsg, errorState, saveCustomer, selectCustomerType, companyPass }
     }
 
 }
