@@ -49,6 +49,7 @@ export default {
 
 .app-container {
   display: flex;
+  width: 100%;
 }
 
 .componentArea{

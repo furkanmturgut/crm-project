@@ -1,14 +1,16 @@
 <template>
-    <div v-if="isSpinner !== true" class="loginArea">
-        <img alt="Turkuvaz" class="iconStyle" src="@/assets/logo.png">
-        <TInputText class="loginStyle" v-model="username" placeholder="Email"></TInputText>
-        <TInputText v-model="password" type="password" class="loginStyle" placeholder="Parola"></TInputText>
-        <TButton class="loginBtn" label="Giriş Yap" @click="login"></TButton>
+    <div v-if="isSpinner !== true">
+        <form @submit.prevent="login" @keyup.enter="login" class="loginArea">
+            <img alt="Turkuvaz" class="iconStyle" src="@/assets/logo.png">
+            <TInputText class="loginStyle" v-model="username" placeholder="Email"></TInputText>
+            <TInputText v-model="password" type="password" class="loginStyle" placeholder="Parola" @click.=""></TInputText>
+            <TButton class="loginBtn" label="Giriş Yap" type="submit"></TButton>
+        </form>
     </div>
-  <div style="display:flex; align-items:center; justify-content:center;" v-else>
-    <TSpinner></TSpinner>
-    <span style="display:flex; justify-content:center; align-items:center;">Yükleniyor...</span>
-  </div>
+    <div style="display:flex; align-items:center; justify-content:center;" v-else>
+        <TSpinner></TSpinner>
+        <span style="display:flex; justify-content:center; align-items:center;">Yükleniyor...</span>
+    </div>
     <TToast></TToast>
 </template>
 
@@ -26,26 +28,26 @@ export default {
         const router = useRouter();
         const auth = getAuth(app);
         const toast = useToast();
-        const isSpinner =ref(false)
+        const isSpinner = ref(false)
         const login = () => {
             signInWithEmailAndPassword(auth, username.value, password.value).then(() => {
-              isSpinner.value = true;
-              setTimeout(() => {
+                isSpinner.value = true;
+                setTimeout(() => {
                     router.push({ name: "HomeView" });
                     toast.add({
                         severity: 'success', summary: 'Bilgi', detail: 'Giriş İşlemi Başarılı', life: 1000
                     });
                 }, 1100);
             }).catch(() => {
-              isSpinner.value = false;
-              toast.add({
+                isSpinner.value = false;
+                toast.add({
                     severity: 'warn', summary: 'Bilgi', detail: 'Giriş Yapılamadı. Tekrar Deneyin', life: 1000
                 });
 
             });
         }
 
-        return { username, password, login,isSpinner }
+        return { username, password, login, isSpinner }
     }
 
 }

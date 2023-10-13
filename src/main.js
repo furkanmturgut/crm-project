@@ -25,7 +25,7 @@ import AutoComplete from 'primevue/autocomplete';
 import Accordion from 'primevue/accordion';
 import AccordionTab from 'primevue/accordiontab';
 import Knob from 'primevue/knob';
-
+    
 const app = createApp(App);
 app.use(PrimeVue);
 app.use(ToastService);
@@ -50,5 +50,6 @@ app.component("TAutoComplete",AutoComplete);
 app.component("TAccordion",Accordion);
 app.component("TAccordionTab",AccordionTab);
 app.component("TKnob",Knob);
+
 
 app.mount("#app");

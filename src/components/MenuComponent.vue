@@ -1,137 +1,80 @@
 <template >
-    <div style="background-color: turquoise; height:100vh; width: 100% ">
+    <div style="background-color: turquoise; height:100vh; width: 200px ">
         <div style="display: flex; align-items: center; justify-content: center; ">
             <img alt="Turkuvaz" src="@/assets/logo.png" style="width:70px; height: 70px; margin: 20px 0;">
         </div>
-        <ul v-if="isUser === false">
-            <li v-for="menuItem in menuItems" :key="menuItem.label" @click="toggleSubMenu(menuItem)"
-                :style="{ backgroundColor: menuItem.active ? 'black' : 'initial' }">
-                <i :class="menuItem.icons" @click="toggleSubMenu(menuItem)"></i>
-                <a href="#">{{ menuItem.label }}</a>
-
-                <ul v-if="menuItem.submenu && menuItem.active">
-                    <li v-for="subItem in menuItem.submenu" :key="subItem.id">
-                        <a href="#" @click="subSelected(subItem.id)">{{ subItem.label }}</a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        <!-- eger kullanici giris yaptiysa -->
-        <ul v-if="isUser === true">
-            <li v-for="user in userItems" :key="user.label" @click="toggleSubMenu(user)"
-                :style="{ backgroundColor: user.active ? 'black' : 'initial' }">
-                <i :class="user.icons" @click="toggleSubMenu(user)"></i>
-                <a href="#">{{ user.label }}</a>
-
-            </li>
-        </ul>
-
+        <div>
+            <ul>
+                <li v-for="items in menuList" :key="items" @click="selectItem(items.id)"
+                    :class="[items.active == true ? 'active' : '']">
+                    <i :class="items.icons"></i>
+                    <a href="#"> {{ items.label }}</a>
+                </li>
+            </ul>
+        </div>
         <TConfirmDialog></TConfirmDialog>
         <TToast></TToast>
 
     </div>
 </template>
 
-
 <script>
+
 import { ref } from 'vue';
+import menuItems from "@/constData/menuItems";
 import { useRouter } from 'vue-router';
-import { useConfirm } from 'primevue/useconfirm';
 import { getAuth, signOut } from 'firebase/auth';
 import { app } from '@/firebase/config';
-import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm'
 export default {
     props: ["isUser"],
     setup() {
-        const userItems = ref([
-            { id: 15, label: 'Anasayfa', active: true, icons: 'pi pi-home' },
-            { id: 12, label: 'Projelerim', active: false, icons: 'pi pi-folder-open', isUsers: true },
-            { id: 13, label: 'Talep Oluştur', active: false, icons: 'pi pi-file-edit', isUsers: true },
-            { id: 14, label: 'Bildirimler', active: false, icons: 'pi pi-inbox', isUsers: true },
-        ]);
-
-
-        const menuItems = ref([
-            { id: 1, label: 'Anasayfa', active: true, icons: 'pi pi-home' },
-            {
-                label: 'Müşteri Yönetimi', active: false, icons: 'pi pi-id-card', submenu: [
-                    { id: 2, label: " -> Müşteriler" },
-                    { id: 3, label: " -> Müşteri Talepleri" }
-                ]
-            },
-            { id: 4, label: 'İletişim Yönetimi', active: false, icons: 'pi pi-envelope' },
-            {
-                label: 'Teklif Yönetimi', active: false, icons: 'pi pi-file', submenu: [
-                    { id: 5, label: " -> Teklifler" },
-                    { id: 6, label: " -> Hazır Teklif Listesi" }
-                ]
-            },
-            {
-                label: 'Görev ve Takvim Yönetimi', active: false, icons: 'pi pi-calendar', submenu: [
-                    { id: 7, label: " -> Görev ve Takvim Planlama" },
-                    { id: 8, label: " -> Hatırlatmalar ve bildirimler" }
-                ]
-            },
-            { id: 9, label: 'Kullanıcı Yönetimi', active: false, icons: 'pi pi-user' },
-
-            { id: 10, label: 'Projeler & Ürünler', active: false, icons: 'pi pi-folder-open' },
-            { id: 11, label: 'Çıkış Yap', active: false, icons: 'pi pi-power-off' }
-
-        ]);
+        const menuList = ref(menuItems);
         const router = useRouter();
-        const confirm = useConfirm();
         const auth = getAuth(app);
-        const toats = useToast();
+        const confirm = useConfirm();
+        const selectItem = (index) => {
+            const selectMenu = menuItems.find(items => items.id == index);
+            if (selectMenu) {
+                selectMenu.active = !selectMenu.active;
+                console.log("Active : ",menuItems);
+            }
+            if (index === 1) {
+                router.push({ name: "HomeView" })
+            } else if (index == 2) {
+                router.push({ name: "CustomerView" })
+            } else if (index == 3) {
+                console.log("İletişim")
+            } else if (index == 8) {
+                router.push({ name: "OffersView" })
 
-        //Cikis icin confirm dialog
+            } else if (index == 5) {
+                console.log("Görev")
+            } else if (index == 6) {
+                router.push({ name: "ProjectView" })
+
+            } else if (index == 7) {
+                confirmDialog();
+            }
+        }
+
         const confirmDialog = () => {
             confirm.require({
-                message: 'Çıkış yapmak istediğine emin misin ?',
-                header: 'Çıkış İşlemi',
-                acceptClass: 'p-button-help',
-                acceptLabel: 'Evet',
+                header: "Çıkış İşlemi",
+                message: "Çıkış yapmak istediğinize emin misiniz ?",
                 accept: () => {
                     signOut(auth).then(() => {
-                        toats.add({
-                            life: 1100, summary: 'Çıkış İşlemi', detail: 'Çıkış İşlemi Gerçekleşti', severity: 'success'
-                        });
-                        router.go({ name: 'LoginView' });
+                        router.go({ name: "LoginView" })
                     })
+
                 },
-                rejectLabel: 'İptal',
-                reject: () => { }
+                acceptLabel: "Evet",
+                reject: () => { },
+                rejectLabel: "İptal"
             })
         }
 
-        // Alt menu yoksa
-        const toggleSubMenu = (selectedMenuItem) => {
-            menuItems.value.forEach(menuItem => {
-                menuItem.active = menuItem === selectedMenuItem;
-
-            });
-            if (selectedMenuItem.id === 11) {
-                confirmDialog();
-            } else if (selectedMenuItem.id === 1) {
-                router.push({ name: 'HomeView' });
-            } else if (selectedMenuItem.id === 10) {
-                router.push({ name: "ProjectView" })
-            }
-        }
-
-        //Alt menu varsa
-        const subSelected = (id) => {
-            switch (id) {
-                case 2:
-                    router.push({ name: "CustomerView" })
-                    break;
-
-                case 5:
-                    router.push({ name: 'OffersView' });
-                    break;
-            }
-        }
-
-        return { menuItems, toggleSubMenu, subSelected, userItems }
+        return { menuList, selectItem }
 
     }
 
@@ -140,7 +83,7 @@ export default {
 
 <style scoped>
 i {
-    color: white;
+    color: black;
     margin: 8px;
 }
 
@@ -153,25 +96,26 @@ ul {
 li {
     position: relative;
     padding: 10px;
-    margin-bottom: 5px;
+    margin: 10px 4px;
     cursor: pointer;
+
 }
 
-ul ul {
-    left: 100%;
-    top: 0;
-    background-color: black;
+.active {
+    background-color: brown;
 }
 
 
 a {
     text-decoration: none;
-    color: white;
+    color: black;
+    font-weight: bold;
     text-align: center;
 }
 
 
-li:hover>ul {
+li:hover {
     display: block;
+    background-color: rgb(255, 255, 255, 0.8);
 }
 </style>
