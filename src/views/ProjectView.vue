@@ -9,7 +9,7 @@
 
       <span style="font-weight: bold; margin:20px 0;  font-size: 22px;">Tüm Projeler</span>
       <div class="customer-btn-area">
-          <project-component :projectList="projectList"></project-component>
+        <project-component :projectList="projectList" :isUser="isUser" :compName="compName"></project-component>
       </div>
 
     </div>
@@ -22,13 +22,19 @@ import { useDialog } from 'primevue/usedialog';
 import { getFirestore, query, collection, getDocs } from 'firebase/firestore';
 import ProjectComponent from '@/components/ProjectComponent.vue';
 import { app } from '@/firebase/config';
+import { getAuth } from 'firebase/auth';
+
 export default {
   name: 'ProjectView',
-  components:{ProjectComponent},
+  components: { ProjectComponent },
   setup() {
     const dialog = useDialog();
     const projectList = ref([]);
     const firestore = getFirestore(app);
+    const auth = getAuth(app);
+    const user = auth.currentUser;
+    const compName = ref(null);
+    const isUser = ref(false);
     const ProjectPopup = defineAsyncComponent(() => import("@/views/popup/ProjectPopup.vue"))
     const addProject = () => {
       dialog.open(ProjectPopup, {
@@ -43,6 +49,13 @@ export default {
     };
 
     onMounted(async () => {
+      if (user !== null) {
+        compName.value = user.displayName;
+        if (user.displayName !== null) {
+          isUser.value = true;
+        }
+      }
+
       const q = query(collection(firestore, "projects"));
       await getDocs(q).then((snapshot) => {
         snapshot.forEach((item) => {
@@ -51,7 +64,7 @@ export default {
       })
     })
 
-    return { addProject,projectList }
+    return { addProject, projectList, compName, isUser }
 
   }
 
