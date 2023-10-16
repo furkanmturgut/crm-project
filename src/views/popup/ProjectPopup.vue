@@ -5,7 +5,7 @@
             <label>Proje Adı</label>
             <TInputText placeholder="Proje Adı Giriniz" v-model="projectName" @input="formValidation(0)"></TInputText>
             <span style="color:red;" v-if="errorState.name">{{ errorMsg.name }}</span>
-          
+
             <!-- Project Company -->
             <label>Proje Teslim Edilecek Firma</label>
             <TAutoComplete inputStyle="width:100%" v-model="searchCompany" :suggestions="items" optionLabel="name"
@@ -24,7 +24,7 @@
                 <small>Güncel Kur ile EURO Fiyatı : <small style="font-weight: bold;"> {{
                     tryToEuro.toString().slice(0, 8) }}</small> </small>
             </div>
-                        
+
             <!-- Project Detail -->
             <label>Proje Açıklama</label>
             <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="projectDetail"
@@ -108,7 +108,7 @@ export default {
             filteredUser.forEach((item) => {
                 items.value.push({
                     name: item.compName,
-                    mail: item.compEmail
+                    mail: item.compEmail,
                 });
             })
         }
@@ -179,17 +179,17 @@ export default {
                             pPrice: projectPrice.value,
                             pDetail: projectDetail.value,
                             pType: selectProject.value,
-                            pCompany: searchCompany.value
+                            pCompany: searchCompany.value,
                         };
 
                         await saveProject(data);
 
                         toast.add({
-                            life:1500,detail:"Proje başarıyla eklendi",summary:"Proje Ekleme",severity:"success"
+                            life: 1500, detail: "Proje başarıyla eklendi", summary: "Proje Ekleme", severity: "success"
                         });
 
                         setTimeout(() => {
-                            router.go({name:"ProjectView"});
+                            router.go({ name: "ProjectView" });
                         }, 1500);
                     } else {
                         errorState.value.company = true;

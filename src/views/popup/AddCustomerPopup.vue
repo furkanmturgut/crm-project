@@ -65,8 +65,8 @@ import createUser from '@/firebase/createUser.js';
 export default {
     name: "AddCustomerPopup",
     setup() {
-        const errorState = ref({ name: false, person: false, phone: false, mail: false, address: false, spinner: false,pass:false });
-        const errorMsg = ref({ name: null, person: null, phone: null, mail: null, address: null,pass:null });
+        const errorState = ref({ name: false, person: false, phone: false, mail: false, address: false, spinner: false, pass: false });
+        const errorMsg = ref({ name: null, person: null, phone: null, mail: null, address: null, pass: null });
         const companyName = ref('');
         const companyPerson = ref(null);
         const companyPhone = ref(null);
@@ -127,13 +127,13 @@ export default {
                     }
                     break;
                 case 5:
-                    if (companyPass.value.length < 6){
+                    if (companyPass.value.length < 6) {
                         errorState.value.pass = true;
                         errorMsg.value.pass = "En az 6 karakter parola belirleyin";
-                    }else {
+                    } else {
                         errorState.value.pass = false;
                     }
-                        break;
+                    break;
             }
         }
 
@@ -151,7 +151,9 @@ export default {
                     addDate: serverTimestamp(),
                     customerType: selectCustomerType.value
                 };
-                createUser(companyMail.value,companyPass.value);
+                createUser(companyMail.value, companyPass.value,companyName.value);
+
+
                 await addCustomer(customerData);
                 toast.add({
                     severity: 'success', life: 1500, summary: 'Müşteri Kayıt', detail: "Müşteri başarıyla eklendi."

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <div v-if="isAdmin">
+    <div v-if="isAdmin" class="sticky-menu">
       <menu-component :is-user="isUser"></menu-component>
     </div>
     <div class="componentArea">
@@ -22,26 +22,28 @@ export default {
     const isUser = ref(false);
     const auth = getAuth(app);
     onMounted(() => {
-     
+
       onAuthStateChanged(auth, (user) => {
         if (user) {
           isAdmin.value = true;
-          if(user.displayName === "userCompany"){
+
+          if (user.displayName !== null) {
             isUser.value = true;
-          }
+          } 
         }
 
       });
     });
 
 
-    return { isAdmin ,isUser}
+    return { isAdmin, isUser }
   }
 }
 </script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300&display=swap');
+
 * {
   margin: 0;
   font-family: 'Cairo', sans-serif;
@@ -52,7 +54,17 @@ export default {
   width: 100%;
 }
 
-.componentArea{
+.componentArea {
   width: 86%;
 }
-</style>
+
+.sticky-menu {
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  /* Add a background color if needed */
+  z-index: 100;
+  /* Adjust the z-index as needed */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  /* Add a box shadow if desired */
+}</style>

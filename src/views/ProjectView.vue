@@ -9,13 +9,7 @@
 
       <span style="font-weight: bold; margin:20px 0;  font-size: 22px;">Tüm Projeler</span>
       <div class="customer-btn-area">
-        <TDataTable :value="projectList" paginator :rows="7" tableStyle="width:100%;">
-          <TColumn field="pName" sortable header="Proje Adı" style="25%"></TColumn>
-          <TColumn field="pCompany.name" header="Proje Firma" style="25%"></TColumn>
-          <TColumn field="pPrice" sortable header="Proje Tutarı" style="25%"></TColumn>
-          <TColumn field="pType" header="Proje Tipi" style="25%"></TColumn>
-          <TColumn field="pDetail" header="Proje Açıklama" style="30%"></TColumn>
-        </TDataTable>
+          <project-component :projectList="projectList"></project-component>
       </div>
 
     </div>
@@ -26,9 +20,11 @@
 import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { useDialog } from 'primevue/usedialog';
 import { getFirestore, query, collection, getDocs } from 'firebase/firestore';
+import ProjectComponent from '@/components/ProjectComponent.vue';
 import { app } from '@/firebase/config';
 export default {
   name: 'ProjectView',
+  components:{ProjectComponent},
   setup() {
     const dialog = useDialog();
     const projectList = ref([]);

@@ -33,7 +33,7 @@ export default {
             signInWithEmailAndPassword(auth, username.value, password.value).then(() => {
                 isSpinner.value = true;
                 setTimeout(() => {
-                    router.push({ name: "HomeView" });
+                    router.go({ name: "HomeView" });
                     toast.add({
                         severity: 'success', summary: 'Bilgi', detail: 'Giriş İşlemi Başarılı', life: 1000
                     });
