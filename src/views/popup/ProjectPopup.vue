@@ -107,8 +107,7 @@ export default {
 
             filteredUser.forEach((item) => {
                 items.value.push({
-                    name: item.compName,
-                    mail: item.compEmail,
+                    name: item.compName
                 });
             })
         }
@@ -173,13 +172,15 @@ export default {
 
                     if (searchCompany.value != null) {
                         errorState.value.company = false;
+                        const a = JSON.stringify(searchCompany.value.name);
+                        const cName = a.replace(/"/g,'');
 
                         const data = {
                             pName: projectName.value,
                             pPrice: projectPrice.value,
                             pDetail: projectDetail.value,
                             pType: selectProject.value,
-                            pCompany: searchCompany.value,
+                            pCompany:cName,
                         };
 
                         await saveProject(data);
