@@ -1,11 +1,8 @@
 <template>
     <div class="offer-area">
-        <h1 style="margin-top:20px;">Teklifler</h1>
+        <header-component :mainTitle="'Teklifler'" :btnTitle="'Teklif Gönder'" @btnClick="newOffer"></header-component>
+        <TDynamicDialog></TDynamicDialog>
 
-        <div class="btn-add-offer">
-            <TDynamicDialog></TDynamicDialog>
-            <span class="btn-name" @click="newOffer">Teklif Gönder</span>
-        </div>
         <span style="font-weight: bold; font-size: 22px; margin:20px 0;">Gönderilmiş Mailler</span>
         <TAccordion style="width: 60%; margin: 8px 0;" v-for="mail in mailList" :key="mail.mailDate">
             <TAccordionTab>
@@ -35,8 +32,10 @@ import { useDialog } from 'primevue/usedialog';
 import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { getFirestore, query, collection, getDocs,orderBy } from "firebase/firestore";
 import { app } from '@/firebase/config.js';
+import HeaderComponent from '@/components/HeaderComponent.vue';
 export default {
     name: "OffersView",
+    components:{HeaderComponent},
     setup() {
         const dialog = useDialog();
         const mailList = ref([]);

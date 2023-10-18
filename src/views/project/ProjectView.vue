@@ -1,19 +1,13 @@
 <template>
   <div class="project-list">
-    <h1 style="margin-top:20px">Projeler & Ürünler</h1>
-    <div  class="customer-btn-area">
-      <div v-if="!isUser" class="add-customer" @click="addProject">
-        <span class="btn-name">Proje Ekle</span>
-      </div>
+      <header-component :mainTitle="'Projeler & Ürünler'" :btnTitle="'Proje Ekle'" @btnClick="addProject"></header-component>
       <TDynamicDialog></TDynamicDialog>
-
       <span style="font-weight: bold; margin:20px 0;  font-size: 22px;">Tüm Projeler</span>
       <div class="customer-btn-area" v-if="projectList.length !==0">
         <project-component :projectList="projectList" :isUser="isUser" :compName="compName"></project-component>
       </div>
 
     </div>
-  </div>
 </template>
 
 <script>
@@ -21,12 +15,13 @@ import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { useDialog } from 'primevue/usedialog';
 import { getFirestore, query, collection, getDocs } from 'firebase/firestore';
 import ProjectComponent from '@/components/ProjectComponent.vue';
+import HeaderComponent from '@/components/HeaderComponent.vue';
 import { app } from '@/firebase/config';
 import { getAuth } from 'firebase/auth';
 
 export default {
   name: 'ProjectView',
-  components: { ProjectComponent },
+  components: { ProjectComponent,HeaderComponent },
   setup() {
     const dialog = useDialog();
     const projectList = ref([]);

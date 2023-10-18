@@ -80,10 +80,8 @@ export default {
                 }
 
                 // User's
-                if (index === 9) {
-                    console.log("Projelerim")
-                } else if (index == 10) {
-                    console.log("Talep")
+                if (index == 10) {
+                    router.push({name:"CreateRequestView"})
                 } else if (index == 11) {
                     console.log("Bildirim")
                 }

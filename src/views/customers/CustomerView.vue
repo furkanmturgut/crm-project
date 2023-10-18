@@ -1,16 +1,7 @@
 <template>
   <div class="customer-panel">
-    <h1 style="margin-top:20px">Müşteri Ekranı</h1>
-    <div class="customer-btn-area">
-      <div class="add-customer" @click="addCustomer">
-
-        <TDynamicDialog></TDynamicDialog>
-        <span class="btn-name"> Müşteri Ekle</span>
-      </div>
-      <div class="add-customer">
-        <span class="btn-name"> Müşteri Talepleri</span>
-      </div>
-    </div>
+    <header-component :mainTitle="'Müşteriler'" :btnTitle="'Müşteri Ekle'" @btnClick="addCustomer"></header-component>
+    <TDynamicDialog></TDynamicDialog>
 
     <span style="font-weight: bold; margin:20px 0;  font-size: 22px;">Tüm Müşteriler</span>
     <div v-if="customerList.length != 0" class="customer-btn-area">
@@ -34,9 +25,10 @@ import { useDialog } from 'primevue/usedialog';
 import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { getFirestore, query, collection, getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
-
+import HeaderComponent from '@/components/HeaderComponent.vue';
 export default {
   name: "CustomerView",
+  components:{HeaderComponent},
   setup() {
     const AddCustomerPopup = defineAsyncComponent(() => import('@/views/customers/AddCustomerPopup.vue'));
     const dialog = useDialog();
