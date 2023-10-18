@@ -42,7 +42,7 @@ export default {
         const mailList = ref([]);
         const firestore = getFirestore(app);
 
-        const NewOffer = defineAsyncComponent(() => import('@/views/popup/NewOfferPopup.vue'));
+        const NewOffer = defineAsyncComponent(() => import('@/views/offers/NewOfferPopup.vue'));
         const newOffer = () => {
             dialog.open(NewOffer, {
                 props: {

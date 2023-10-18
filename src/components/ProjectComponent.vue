@@ -1,5 +1,5 @@
 <template>
-    <TDataTable :value="filteredProject" paginator :rows="7" tableStyle="width:100%;">
+    <TDataTable :value="filteredProject" showGridlines paginator :rows="7" tableStyle="width:100%;">
         <TColumn field="pName" sortable header="Proje Adı" style="20%"></TColumn>
         <TColumn v-if="!isUser" field="pCompany" header="Proje Firma" style="20%"></TColumn>
         <TColumn field="pPrice" sortable header="Proje Tutarı" style="20%"></TColumn>
@@ -29,11 +29,10 @@ export default {
         }
     },
     setup(props) {
-        console.log("Comp Name : ", props.compName)
         const filteredProject = computed(() => {
             if (props.compName) {
                 return props.projectList.filter((item) => {
-                    return item.pCompany == props.compName;
+                    return item.pCompany === props.compName;
                 });
             } else {
                 return props.projectList;

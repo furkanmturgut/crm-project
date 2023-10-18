@@ -13,8 +13,6 @@
             </ul>
         </div>
         <TConfirmDialog></TConfirmDialog>
-        <TToast></TToast>
-
     </div>
 </template>
 

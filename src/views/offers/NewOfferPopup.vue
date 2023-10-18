@@ -30,8 +30,8 @@ import { serverTimestamp } from 'firebase/firestore';
 import addOfferMail from '@/firebase/addOfferMail';
 import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
-import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
+import {toastError, toastSuccess} from '@/components/Base/toast';
 export default {
     name: "NewOfferPopup",
     setup() {
@@ -43,7 +43,6 @@ export default {
         const firestore = getFirestore(app);
         const customerList = ref([]);
         const searchCompany = ref(null)
-        const toast = useToast();
         const items = ref([]);
         const getUserFunc = (async () => {
             const q = query(collection(firestore, "customers"));
@@ -89,14 +88,14 @@ export default {
                 });
 
                 await addOfferMail(mailDetail);
-                toast.add({
-                    life:1200,severity:'success',summary:'Mail Gönderme',detail:'Mail başarıyla yollandı.'
-                });
+                toastSuccess("Mail başarıyla yollandı")
 
                 setTimeout(() => {
-                    router.go({name:"OffersView"})
+                    router.go({ name: "OffersView" })
                 }, 1500);
 
+            }else {
+              toastError("Mail gönderilemedi işlemleri kontrol edin");
             }
         }
 

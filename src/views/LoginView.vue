@@ -18,8 +18,8 @@
 import { ref } from 'vue';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { app } from '@/firebase/config';
-import { useToast } from 'primevue/usetoast';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
+import { toastError, toastSuccess } from '@/components/Base/toast';
 export default {
     name: 'LoginView',
     setup() {
@@ -27,22 +27,17 @@ export default {
         const password = ref(null);
         const router = useRouter();
         const auth = getAuth(app);
-        const toast = useToast();
         const isSpinner = ref(false)
         const login = () => {
             signInWithEmailAndPassword(auth, username.value, password.value).then(() => {
                 isSpinner.value = true;
                 setTimeout(() => {
-                    router.go({ name: "HomeView" });
-                    toast.add({
-                        severity: 'success', summary: 'Bilgi', detail: 'Giriş İşlemi Başarılı', life: 1000
-                    });
+                    router.push({ name: "HomeView" });
+                    toastSuccess("Griş İşlemi Başarılı");
                 }, 1100);
             }).catch(() => {
                 isSpinner.value = false;
-                toast.add({
-                    severity: 'warn', summary: 'Bilgi', detail: 'Giriş Yapılamadı. Tekrar Deneyin', life: 1000
-                });
+                toastError("Giriş Yapılamadı.")
 
             });
         }

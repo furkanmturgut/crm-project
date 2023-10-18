@@ -1,14 +1,14 @@
 <template>
   <div class="project-list">
     <h1 style="margin-top:20px">Projeler & Ürünler</h1>
-    <div class="customer-btn-area">
-      <div class="add-customer" @click="addProject">
-        <TDynamicDialog></TDynamicDialog>
+    <div  class="customer-btn-area">
+      <div v-if="!isUser" class="add-customer" @click="addProject">
         <span class="btn-name">Proje Ekle</span>
       </div>
+      <TDynamicDialog></TDynamicDialog>
 
       <span style="font-weight: bold; margin:20px 0;  font-size: 22px;">Tüm Projeler</span>
-      <div class="customer-btn-area">
+      <div class="customer-btn-area" v-if="projectList.length !==0">
         <project-component :projectList="projectList" :isUser="isUser" :compName="compName"></project-component>
       </div>
 
@@ -35,7 +35,7 @@ export default {
     const user = auth.currentUser;
     const compName = ref(null);
     const isUser = ref(false);
-    const ProjectPopup = defineAsyncComponent(() => import("@/views/popup/ProjectPopup.vue"))
+    const ProjectPopup = defineAsyncComponent(() => import("@/views/project/ProjectPopup.vue"))
     const addProject = () => {
       dialog.open(ProjectPopup, {
         props: {

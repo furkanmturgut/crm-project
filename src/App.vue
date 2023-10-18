@@ -5,7 +5,6 @@
     </div>
     <div class="componentArea">
       <router-view></router-view>
-
     </div>
   </div>
 </template>

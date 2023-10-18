@@ -57,6 +57,9 @@
             <TButton type="submit" label="KAYDET" style="background-color: turquoise; border: 1px solid turquoise;">
             </TButton>
 
+            <span
+              style="color:red; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-weight: bold; margin-top: 10px"
+              v-if="errorState.all">{{ errorMsg.all }}</span>
             <TToast></TToast>
         </form>
     </div>
@@ -68,15 +71,14 @@ import { computed, ref } from 'vue';
 import saveProject from '@/firebase/saveProject.js';
 import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
-import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
+import { toastSuccess } from '@/components/Base/toast';
 export default {
     name: "ProjectPopup",
     setup() {
         const selectProject = ref(null);
         const searchCompany = ref(null);
         const customerList = ref([]);
-        const toast = useToast();
         const router = useRouter();
         const firestore = getFirestore(app);
         const USD = ref(null);
@@ -84,8 +86,8 @@ export default {
         const projectPrice = ref('');
         const projectName = ref('');
         const projectDetail = ref('');
-        const errorState = ref({ currency: false, name: false, detail: false, projectType: false, company: false });
-        const errorMsg = ref({ currency: null, name: null, detail: null, projectType: null, company: null });
+        const errorState = ref({ currency: false, name: false, detail: false, projectType: false, company: false,all:false });
+        const errorMsg = ref({ currency: null, name: null, detail: null, projectType: null, company: null,all:false });
         const items = ref([]);
 
         // AutoComplete islemi
@@ -173,35 +175,35 @@ export default {
                     if (searchCompany.value != null) {
                         errorState.value.company = false;
                         const a = JSON.stringify(searchCompany.value.name);
-                        const cName = a.replace(/"/g,'');
+                        const cName = a.replace(/"/g, '');
 
                         const data = {
                             pName: projectName.value,
                             pPrice: projectPrice.value,
                             pDetail: projectDetail.value,
                             pType: selectProject.value,
-                            pCompany:cName,
+                            pCompany: cName,
                         };
 
                         await saveProject(data);
-
-                        toast.add({
-                            life: 1500, detail: "Proje başarıyla eklendi", summary: "Proje Ekleme", severity: "success"
-                        });
+                        toastSuccess("Proje Başarıyla Eklendi.")
 
                         setTimeout(() => {
                             router.go({ name: "ProjectView" });
                         }, 1500);
                     } else {
                         errorState.value.company = true;
-                        errorMsg.value.company = "Projenin yapıldığı firmayı seçiniz."
+                        errorMsg.value.company = "Projenin yapıldığı firmayı seçiniz"
                     }
 
                 } else {
                     errorState.value.projectType = true;
-                    errorMsg.value.projectType = "Proje tipini Seçiniz";
+                    errorMsg.value.projectType = "Proje tipini seçiniz";
 
                 }
+            }else {
+              errorState.value.all = true;
+              errorMsg.value.all = "Tüm alanları doldurunuz";
             }
         }
 

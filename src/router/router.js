@@ -2,8 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
 import CustomerView from "@/views/customers/CustomerView.vue";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import ProjectView from "@/views/ProjectView.vue";
-import OffersView from "@/views/OffersView.vue";
+import ProjectView from "@/views/project/ProjectView.vue";
+import OffersView from "@/views/offers/OffersView.vue";
 
 const routes = [
   {

@@ -49,8 +49,10 @@
                 <TSpinner style="height: 50px;"></TSpinner>
             </div>
             <TButton v-show="!errorState.spinner" class="add-customer-btn" label="KAYDET" type="submit"></TButton>
-
             <TToast></TToast>
+          <small style="display:flex; justify-content:center;" v-if="errorState.all">{{ errorMsg.all }}</small>
+
+
         </div>
     </form>
 </template>
@@ -60,13 +62,13 @@ import { ref } from 'vue';
 import addCustomer from '@/firebase/addCustomer';
 import { serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'vue-router';
-import { useToast } from 'primevue/usetoast';
 import createUser from '@/firebase/createUser.js';
+import { toastSuccess } from '@/components/Base/toast';
 export default {
     name: "AddCustomerPopup",
     setup() {
-        const errorState = ref({ name: false, person: false, phone: false, mail: false, address: false, spinner: false, pass: false });
-        const errorMsg = ref({ name: null, person: null, phone: null, mail: null, address: null, pass: null });
+        const errorState = ref({ name: false, person: false, phone: false, mail: false, address: false, spinner: false, pass: false,all:false });
+        const errorMsg = ref({ name: null, person: null, phone: null, mail: null, address: null, pass: null ,all:false});
         const companyName = ref('');
         const companyPerson = ref(null);
         const companyPhone = ref(null);
@@ -74,7 +76,6 @@ export default {
         const companyPass = ref('');
         const companyAddress = ref('');
         const router = useRouter();
-        const toast = useToast();
         const selectCustomerType = ref(null);
         let fullNameRegex = /[A-Za-z]+\s[A-Za-z]+/i;
         const phoneRegex = /\(\d\d\d\)\s\d\d\d-\d\d\d\d/i;
@@ -138,11 +139,11 @@ export default {
         }
 
         const saveCustomer = async () => {
-            errorState.value.spinner = true;
             if (fullNameRegex.test(companyPerson.value) &&
                 phoneRegex.test(companyPhone.value) && emailRegex.test(companyMail.value) && companyName.value.length >= 4 && companyAddress.value.length >= 10 && selectCustomerType.value != null) {
+              errorState.value.spinner = true;
 
-                const customerData = {
+              const customerData = {
                     compName: companyName.value,
                     compPerson: companyPerson.value,
                     compPhone: companyPhone.value,
@@ -155,15 +156,17 @@ export default {
 
 
                 await addCustomer(customerData);
-                toast.add({
-                    severity: 'success', life: 1500, summary: 'Müşteri Kayıt', detail: "Müşteri başarıyla eklendi."
-                });
+                
+                toastSuccess("Müşteri başarıyla eklendi")
                 errorState.value.spinner = false;
                 setTimeout(() => {
                     router.go({ name: 'CustomerView' });
 
                 }, 1500);
 
+            }else {
+              errorState.value.all = true;
+              errorMsg.value.all = "Tüm alanları doldurunuz"
             }
         }
 

@@ -22,8 +22,8 @@
         <TColumn field="compAddress" header="Adres" style="25%"></TColumn>
       </TDataTable>
     </div>
-    <div style="margin-top:20px;" v-else>
-      <span class="no-customer">Kayıtlı müşteriniz bulunmamaktadır</span>
+    <div style="margin-top:20px; display:flex; flex-direction:column; align-items: center; justify-content:center;" v-else>
+      <TSpinner style="height: 50px; width: 50px;"></TSpinner>
     </div>
 
   </div>
@@ -38,7 +38,7 @@ import { app } from '@/firebase/config';
 export default {
   name: "CustomerView",
   setup() {
-    const AddCustomerPopup = defineAsyncComponent(() => import('@/views/popup/AddCustomerPopup.vue'));
+    const AddCustomerPopup = defineAsyncComponent(() => import('@/views/customers/AddCustomerPopup.vue'));
     const dialog = useDialog();
     const addCustomer = () => {
       dialog.open(AddCustomerPopup, {
@@ -112,8 +112,4 @@ export default {
   justify-content: center;
 }
 
-.no-customer {
-  font-weight: bold;
-  color: black;
-}
 </style>
