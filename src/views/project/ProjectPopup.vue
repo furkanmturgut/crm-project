@@ -8,7 +8,7 @@
 
             <!-- Project Company -->
             <label>Proje Teslim Edilecek Firma</label>
-            <TAutoComplete inputStyle="width:100%" v-model="searchCompany" :suggestions="items" optionLabel="name"
+            <TAutoComplete inputStyle="width:100%" v-model="searchCompany" :suggestions="items" optionLabel="name" emptySearchMessage="Firma bulunamadı."
                 @complete="search"></TAutoComplete>
             <span style="color:red;" v-if="errorState.company">{{ errorMsg.company }}</span>
 
@@ -134,7 +134,7 @@ export default {
 
         const detailLength = computed(() => {
             return projectDetail.value.length;
-        })
+        });
 
         // Form kontrolu
         const formValidation = (type) => {
@@ -186,7 +186,7 @@ export default {
                         };
 
                         await saveProject(data);
-                        toastSuccess("Proje Başarıyla Eklendi.")
+                        toastSuccess("Proje Başarıyla Eklendi.");
 
                         setTimeout(() => {
                             router.go({ name: "ProjectView" });
@@ -199,7 +199,6 @@ export default {
                 } else {
                     errorState.value.projectType = true;
                     errorMsg.value.projectType = "Proje tipini seçiniz";
-
                 }
             }else {
               errorState.value.all = true;

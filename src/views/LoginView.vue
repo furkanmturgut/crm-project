@@ -40,7 +40,6 @@ export default {
 
         const email = defineInputBinds('email');
         const password = defineInputBinds('password');
-
         const onSubmit = handleSubmit(() => {
             console.log("Email : ", email.value.value);
             signInWithEmailAndPassword(auth, email.value.value, password.value.value).then(() => {

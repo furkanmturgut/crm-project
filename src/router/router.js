@@ -41,7 +41,7 @@ const routes = [
   {
     path:"/request",
     name:"CreateRequestView",
-    component: () => import("@/views/CreateRequest.vue"),
+    component: () => import("@/views/request/CreateRequest.vue"),
     props: true,
     meta: {requiresAuth: true }
   }
