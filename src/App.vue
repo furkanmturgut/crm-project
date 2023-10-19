@@ -57,13 +57,8 @@ export default {
   width: 86%;
 }
 
-.sticky-menu {
-  position: sticky;
-  top: 0;
-  background-color: #fff;
-  /* Add a background color if needed */
-  z-index: 100;
-  /* Adjust the z-index as needed */
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  /* Add a box shadow if desired */
-}</style>
+.error-class {
+  color:red;
+  font-weight: bold;
+}
+</style>

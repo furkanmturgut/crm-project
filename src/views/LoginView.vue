@@ -1,9 +1,11 @@
 <template>
     <div v-if="isSpinner !== true">
-        <form @submit.prevent="login" @keyup.enter="login" class="loginArea">
+        <form @submit.prevent="onSubmit" class="loginArea">
             <img alt="Turkuvaz" class="iconStyle" src="@/assets/logo.png">
-            <TInputText class="loginStyle" v-model="username" placeholder="Email"></TInputText>
-            <TInputText v-model="password" type="password" class="loginStyle" placeholder="Parola" @click.=""></TInputText>
+            <TInputText type="email" v-bind="email" class="loginStyle" placeholder="Mail adresi giriniz" />
+            <span class="error-class">{{ errors.email }}</span>
+            <TInputText type="password" v-bind="password" class="loginStyle" placeholder="Parola giriniz" />
+            <span class="error-class">{{ errors.password }}</span>
             <TButton class="loginBtn" label="Giriş Yap" type="submit"></TButton>
         </form>
     </div>
@@ -13,46 +15,53 @@
     </div>
     <TToast></TToast>
 </template>
-
-<script>
-import { ref } from 'vue';
+  
+<script >
+import { useForm } from 'vee-validate';
+import * as yup from 'yup';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { app } from '@/firebase/config';
 import { useRouter } from 'vue-router';
 import { toastError, toastSuccess } from '@/components/Base/toast';
+import { ref } from 'vue';
+
 export default {
-    name: 'LoginView',
     setup() {
-        const username = ref(null);
-        const password = ref(null);
         const router = useRouter();
         const auth = getAuth(app);
-        const isSpinner = ref(false)
-        const login = () => {
-            signInWithEmailAndPassword(auth, username.value, password.value).then(() => {
+        const isSpinner = ref(false);
+
+        const { errors, handleSubmit, defineInputBinds } = useForm({
+            validationSchema: yup.object({
+                email: yup.string().email("Geçerli bir email adresi giriniz").required("Mail alanı boş bırakılamaz"),
+                password: yup.string().min(6, "En az 6 karakter olan parola giriniz").required("Parola alanı boş bırakılamaz"),
+            }),
+        });
+
+        const email = defineInputBinds('email');
+        const password = defineInputBinds('password');
+
+        const onSubmit = handleSubmit(() => {
+            console.log("Email : ", email.value.value);
+            signInWithEmailAndPassword(auth, email.value.value, password.value.value).then(() => {
                 isSpinner.value = true;
                 setTimeout(() => {
                     router.push({ name: "HomeView" });
-                    toastSuccess("Griş İşlemi Başarılı");
+                    toastSuccess("Giriş İşlemi Başarılı");
                 }, 1100);
-            }).catch(() => {
+            }).catch((error) => {
                 isSpinner.value = false;
-                toastError("Giriş Yapılamadı.")
-
+                console.log(error);
+                toastError("Giriş Yapılamadı.");
             });
-        }
+        });
 
-        return { username, password, login, isSpinner }
+        return { email, password, onSubmit, errors, isSpinner }
     }
-
 }
 </script>
 
 <style>
-* {
-    margin: 0;
-}
-
 .iconStyle {
     width: 120px;
     height: 120px;
@@ -69,11 +78,12 @@ export default {
 
 .loginStyle {
     width: 24%;
-    margin: 14px 0;
+    margin: 8px 0;
 }
 
 .loginBtn {
     width: 24%;
+    margin-top: 8px;
     background-color: #1d9bf0;
 }
 

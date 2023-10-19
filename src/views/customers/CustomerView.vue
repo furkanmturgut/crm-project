@@ -41,9 +41,9 @@ export default {
           },
           modal: true
         }
-      })
-
+      });
     }
+
     const customerList = ref([]);
     const firestore = getFirestore(app);
     onMounted(async () => {
@@ -70,7 +70,6 @@ export default {
   justify-content: center;
   font-weight: bold;
   text-align: center;
-
 }
 
 .customer-panel {
@@ -80,7 +79,6 @@ export default {
   justify-content: center;
   flex-direction: column;
   align-items: center;
-
 }
 
 .add-customer {
