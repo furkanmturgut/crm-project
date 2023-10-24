@@ -93,14 +93,15 @@ export default {
                 if (searchProject.value != null ) {
                     const a = JSON.stringify(searchProject.value.name);
                     const projectName = a.replace(/"/g, '');
-                    console.log("Project name : ", projectName);
+                    const id = Date.now();
                     let data = {
+                        id: id,
                         title: sendTitle.value,
                         desc: sendContent.value,
                         date: serverTimestamp(),
                         project: projectName,
                         company:user.displayName,
-                        state: false
+                        state: false,
                     };
                     await addRequest(data);
                 } else {

@@ -9,6 +9,9 @@
                     :class="{ 'active': items.active }">
                     <i :class="items.icons"></i>
                     <a href="#"> {{ items.label }}</a>
+                    <span v-if="items.notification " style="color: black; font-weight: bold;">
+                        ({{ reqList.length }})
+                    </span>
                 </li>
             </ul>
         </div>
@@ -18,16 +21,18 @@
 
 <script>
 
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { getAuth, signOut } from 'firebase/auth';
 import { app } from '@/firebase/config';
 import { useConfirm } from 'primevue/useconfirm';
+import { getFirestore, collection, where, query, getDocs } from 'firebase/firestore';
 export default {
     props: ["isUser"],
     setup(props) {
         const router = useRouter();
         const auth = getAuth(app);
+        const firestore = getFirestore(app);
         const confirm = useConfirm();
         const menuItems = ref([
             { id: 1, label: 'Anasayfa', active: true, icons: 'pi pi-home', isUsers: true, isAdmins: true },
@@ -40,11 +45,22 @@ export default {
             { id: 6, label: 'Projeler & Ürünler', active: false, icons: 'pi pi-folder-open', isAdmins: true },
             { id: 9, label: 'Projelerim', active: false, icons: 'pi pi-folder-open', isUsers: true },
             { id: 10, label: 'Talep Oluştur', active: false, icons: 'pi pi-file-edit', isUsers: true },
-            { id: 11, label: 'Bildirimler', active: false, icons: 'pi pi-inbox', isUsers: true, isAdmins:true },
+            { id: 11, label: 'Bildirimler', active: false, icons: 'pi pi-inbox', notification: true, isUsers: true, isAdmins: true },
             { id: 7, label: 'Çıkış Yap', active: false, icons: 'pi pi-power-off', isAdmins: true, isUsers: true },
 
         ]);
         const itemsControl = ref([]);
+        const reqList = ref([]);
+        
+        //Bildirim sayisi gostermek icin
+        onMounted(async () => {
+            const q = query(collection(firestore, "requests"), where("state", "==", false));
+            await getDocs(q).then((snapshot) => {
+                snapshot.forEach((doc) => {
+                    reqList.value.push(doc.data());
+                });
+            });
+        });
 
         if (props.isUser === false) {
             const a = menuItems.value.filter((item) => {
@@ -78,13 +94,13 @@ export default {
                     router.push({ name: "ProjectView" })
                 } else if (index == 7) {
                     confirmDialog();
-                }else if(index == 12){
-                    router.push({name:"AdminRequest"})
+                } else if (index == 12) {
+                    router.push({ name: "AdminRequest" })
                 }
 
                 // User's
                 if (index == 10) {
-                    router.push({name:"CreateRequestView"})
+                    router.push({ name: "CreateRequestView" })
                 } else if (index == 11) {
                     console.log("Bildirim")
                 }
@@ -105,7 +121,7 @@ export default {
             })
         }
 
-        return { itemsControl, selectItem }
+        return { itemsControl, selectItem,reqList }
 
     }
 

@@ -3,8 +3,8 @@ import { app } from "@/firebase/config";
 
 const firestore = getFirestore(app);
 
-const addCustomer = async (data) => {
+const addRequests = async (data) => {
   await addDoc(collection(firestore, "requests"), data);
 };
 
-export default addCustomer;
+export default addRequests;
