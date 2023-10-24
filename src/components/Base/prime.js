@@ -22,6 +22,8 @@ import AutoComplete from "primevue/autocomplete";
 import Accordion from "primevue/accordion";
 import AccordionTab from "primevue/accordiontab";
 import Knob from "primevue/knob";
+import Tag from 'primevue/tag';
+import ContextMenu from 'primevue/contextmenu';
 
 export const prime = (app) => {
   app.use(PrimeVue);
@@ -46,6 +48,8 @@ export const prime = (app) => {
   app.component("TAccordion", Accordion);
   app.component("TAccordionTab", AccordionTab);
   app.component("TKnob", Knob);
+  app.component("TTag",Tag);
+  app.component("TContextMenu",ContextMenu);
 
   app.config.globalProperties.$toast =
     toastService.config.globalProperties.$toast;

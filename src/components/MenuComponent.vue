@@ -32,6 +32,7 @@ export default {
         const menuItems = ref([
             { id: 1, label: 'Anasayfa', active: true, icons: 'pi pi-home', isUsers: true, isAdmins: true },
             { id: 2, label: 'Müşteri Yönetimi', active: false, icons: 'pi pi-id-card', isAdmins: true },
+            { id: 12, label: 'Müşteri Talepleri', active: false, icons: 'pi pi-file-edit', isAdmins: true },
             { id: 3, label: 'İletişim Yönetimi', active: false, icons: 'pi pi-envelope', isAdmins: true },
             { id: 8, label: 'Teklif Yönetimi', active: false, icons: 'pi pi-file', isAdmins: true },
             { id: 4, label: 'Görev ve Takvim Yönetimi', active: false, icons: 'pi pi-calendar', isAdmins: true },
@@ -39,7 +40,7 @@ export default {
             { id: 6, label: 'Projeler & Ürünler', active: false, icons: 'pi pi-folder-open', isAdmins: true },
             { id: 9, label: 'Projelerim', active: false, icons: 'pi pi-folder-open', isUsers: true },
             { id: 10, label: 'Talep Oluştur', active: false, icons: 'pi pi-file-edit', isUsers: true },
-            { id: 11, label: 'Bildirimler', active: false, icons: 'pi pi-inbox', isUsers: true },
+            { id: 11, label: 'Bildirimler', active: false, icons: 'pi pi-inbox', isUsers: true, isAdmins:true },
             { id: 7, label: 'Çıkış Yap', active: false, icons: 'pi pi-power-off', isAdmins: true, isUsers: true },
 
         ]);
@@ -77,6 +78,8 @@ export default {
                     router.push({ name: "ProjectView" })
                 } else if (index == 7) {
                     confirmDialog();
+                }else if(index == 12){
+                    router.push({name:"AdminRequest"})
                 }
 
                 // User's

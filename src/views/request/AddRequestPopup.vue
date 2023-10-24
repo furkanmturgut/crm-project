@@ -99,7 +99,8 @@ export default {
                         desc: sendContent.value,
                         date: serverTimestamp(),
                         project: projectName,
-                        company:user.displayName
+                        company:user.displayName,
+                        state: false
                     };
                     await addRequest(data);
                 } else {

@@ -44,6 +44,13 @@ const routes = [
     component: () => import("@/views/request/CreateRequest.vue"),
     props: true,
     meta: {requiresAuth: true }
+  },
+  {
+    path:"/adminRequest",
+    name:"AdminRequest",
+    component: () => import("@/views/request/AdminRequest.vue"),
+    props: true,
+    meta: {requiresAuth: true }
   }
 ];
 

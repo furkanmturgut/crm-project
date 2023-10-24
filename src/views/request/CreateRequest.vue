@@ -1,27 +1,30 @@
 <template>
     <div class="request-area">
-        <header-component :mainTitle="'Taleplerim'" :btnTitle="'Geçmiş Talepleri Listele'"
-            @btnClick="historyRequest"></header-component>
+        <header-component :mainTitle="'Taleplerim'" :btnTitle="'Talep Oluştur'"
+            @btnClick="addRequestBtn"></header-component>
         <TDynamicDialog></TDynamicDialog>
-        <TButton label="Talep Oluştur" @click="addRequest"
-            style="width: 26%; height: 64%; background-color: turquoise; border:1px solid turquoise; color:black;">
-        </TButton>
-
+        
+        <br />
         <TDataTable :value="projectList" showGridlines paginator :rows="7" tableStyle="width:100%;">
-            <TColumn field="project" sortable header="Proje Adı" style="25%"></TColumn>
-            <TColumn field="company" sortable header="Firma" style="25%"></TColumn>
-            <TColumn field="title" header="Talep Başlığı" style="25%"></TColumn>
-            <TColumn field="desc" header="Talep Açıklama" style="25%"></TColumn>
+            <TColumn field="project" header="Proje Adı" style="20%"></TColumn>
+            <TColumn field="company" header="Firma" style="20%"></TColumn>
+            <TColumn field="title" header="Talep Başlığı" style="20%"></TColumn>
+            <TColumn field="desc" header="Talep Açıklama" style="20%"></TColumn>
+            <TColumn field="state" header="Talep Durumu" style="20%">
+                <template #body="slotProps">
+                    <TTag :value=" slotProps.data.state ? 'Talep Alındı' : 'Talep Bekliyor ' " :severity="getSeverity(slotProps.data)" />
+                </template>
+            </TColumn>
         </TDataTable>
     </div>
 </template>
 
 <script>
 import HeaderComponent from "@/components/HeaderComponent.vue";
-import { defineAsyncComponent, onMounted,ref } from 'vue';
+import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { useDialog } from "primevue/usedialog";
-import { getFirestore,query,collection,where,getDocs } from "firebase/firestore";
-import {app} from '@/firebase/config';
+import { getFirestore, query, collection, where, getDocs } from "firebase/firestore";
+import { app } from '@/firebase/config';
 import { getAuth } from "firebase/auth";
 export default {
     name: "CreateRequest",
@@ -44,13 +47,12 @@ export default {
                     },
                     modal: true
                 }
-
-            })
+            });
         }
 
         onMounted(async () => {
-            if(user.displayName != null ){
-                const q = query(collection(firestore,"requests"),where("company","==",user.displayName));
+            if (user.displayName != null) {
+                const q = query(collection(firestore, "requests"), where("company", "==", user.displayName));
                 await getDocs(q).then((snapshot) => {
                     snapshot.forEach((item) => {
                         projectList.value.push(item.data());
@@ -59,14 +61,22 @@ export default {
             }
         });
 
-        console.log("Item : ", projectList.value);
+        // Column icinde yer alan tag elementiin rengi degistirildi
+        const getSeverity = (project) => {
+            switch (project.state) {
+                case true:
+                    return 'success'
+                case false:
+                    return 'danger'
+            }
+        }
 
-        const historyRequest = () => {
-            console.log("A")
+        const addRequestBtn = () => {
+            addRequest();
         }
 
 
-        return { historyRequest, addRequest, projectList }
+        return { addRequestBtn, addRequest, projectList,getSeverity }
     }
 }
 
