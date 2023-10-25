@@ -8,21 +8,20 @@
       </template>
     </TContextMenu>
     <TDynamicDialog></TDynamicDialog>
-    <TDataTable @contextmenu="onCellRightClick" aria-haspopup="true" v-model:selection="selectedRequest"
-      :value="requestList" showGridlines paginator :rows="10" tableStyle="width:100%;" filterDisplay="row">
-      <TColumn selectionMode="single" headerStyle="width: 3rem"></TColumn>
+    <TDataTable @contextmenu="onCellRightClick" selectionMode="single" aria-haspopup="true"
+      v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList" showGridlines paginator
+      :rows="10" tableStyle="width:100%;" filterDisplay="row">
       <TColumn field="project" header="Proje Adı" style="20%"></TColumn>
       <TColumn field="company" header="Firma" style="20%"></TColumn>
       <TColumn field="title" header="Talep Başlığı" style="20%"></TColumn>
       <TColumn field="desc" header="Talep Açıklama" style="20%"></TColumn>
       <TColumn field="state" header="Talep Durumu" style="20%" :showFilterMenu="false">
-        <template #body="slotProps">
-          <TTag :value="slotProps.data.state ? 'Talep Alındı' : 'Talep Bekliyor '"
-            :severity="getSeverity(slotProps.data)" />
+        <template #body="{ data }">
+          <TTag :value="data.state ? 'Talep Alındı' : 'Talep Bekliyor '" :severity="getSeverity(data.state)" />
         </template>
-        
       </TColumn>
     </TDataTable>
+
     <TToast></TToast>
   </div>
 </template>
@@ -34,6 +33,8 @@ import { app } from '@/firebase/config';
 import { defineAsyncComponent, onMounted, ref, provide } from 'vue';
 import { useDialog } from 'primevue/usedialog';
 import { toastSuccess } from '@/components/Base/toast';
+import { FilterMatchMode } from 'primevue/api';
+
 export default {
   components: { HeaderComponent },
   name: "AdminRequest",
@@ -50,6 +51,10 @@ export default {
         label: "Talebi Al", icon: 'pi pi-check-circle', command: () => handleMenuItem('addRequest')
       }
     ]);
+    const filters = ref({
+      status: { value: null, matchMode: FilterMatchMode.EQUALS },
+    });
+
     const firestore = getFirestore(app);
     const requestList = ref([]);
     onMounted(() => {
@@ -70,7 +75,7 @@ export default {
 
     // Tag stil ayari
     const getSeverity = (request) => {
-      switch (request.state) {
+      switch (request) {
         case true:
           return 'success'
         case false:
@@ -118,7 +123,7 @@ export default {
       }
     }
 
-    return { requestList, getSeverity, menu, items, selectedRequest, onCellRightClick, handleMenuItem }
+    return { requestList, getSeverity, menu, items, selectedRequest, onCellRightClick, handleMenuItem, filters }
   }
 }
 </script>

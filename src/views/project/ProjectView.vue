@@ -1,6 +1,6 @@
 <template>
   <div class="project-list">
-      <header-component :mainTitle="'Projeler & Ürünler'" :btnTitle="'Proje Ekle'" @btnClick="addProject"></header-component>
+      <header-component :mainTitle="'Projeler & Ürünler'" :btnTitle="'Proje Ekle'" @btnClick="addProject" :isUser="isUser"></header-component>
       <TDynamicDialog></TDynamicDialog>
       <span style="font-weight: bold; margin:20px 0;  font-size: 22px;">Tüm Projeler</span>
       <div class="customer-btn-area" v-if="projectList.length !==0">

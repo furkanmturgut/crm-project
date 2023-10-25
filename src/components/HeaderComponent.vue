@@ -1,6 +1,6 @@
 <template>
     <h1 style="margin-top: 20px;">{{ mainTitle }}</h1>
-    <div class="btn-history-request" v-if="btnTitle !== null">
+    <div class="btn-history-request" v-if="btnTitle !== null && !isUser">
         <span class="btn-name" @click="btnClick">{{ btnTitle }}</span>
     </div>
 
@@ -19,6 +19,11 @@ export default {
             type: String,
             required: false,
             default: null
+        },
+        isUser: {
+            type: Boolean,
+            required: true,
+            
         }
     },
     emits:["btnClick"],
