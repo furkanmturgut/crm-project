@@ -27,7 +27,7 @@
 
 <script>
 import HeaderComponent from '@/components/HeaderComponent.vue';
-import { getFirestore, collection, query, updateDoc, where, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, query, updateDoc, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { app } from '@/firebase/config';
 import { defineAsyncComponent, onMounted, ref } from 'vue';
 import { useDialog } from 'primevue/usedialog';
@@ -50,20 +50,18 @@ export default {
     const firestore = getFirestore(app);
     const requestList = ref([]);
     onMounted(() => {
-     // getRequestData();
-     console.log("AA");
+      getRequestData();
+      console.log("AA");
     });
 
     const getRequestData = async () => {
-      requestList.value = [];
       const q = query(collection(firestore, "requests"));
-      onSnapshot(q, (snapshot) => {
+      await getDocs(q).then((snapshot) => {
         snapshot.forEach((item) => {
           requestList.value.push(item.data());
         });
-      });
+      })
     }
-    getRequestData();
 
     const getSeverity = (request) => {
       switch (request.state) {
@@ -87,8 +85,6 @@ export default {
 
     // Context menu elementine tiklandigi durum
     const handleMenuItem = (send) => {
-      //requestList.value = [];
-
       if (send === 'send') {
         dialog.open(AdminReqPopup, {
           props: {
@@ -101,6 +97,9 @@ export default {
         });
       } else if (send === 'addRequest') {
         selectedUpdateRequest();
+        // Burada veri listesi sifirlandi ve veriyi yeniden çektik
+        requestList.value = [];
+        getRequestData();
 
       }
 
