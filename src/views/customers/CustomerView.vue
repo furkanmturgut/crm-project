@@ -2,9 +2,13 @@
   <div class="customer-panel">
     <header-component :mainTitle="'Müşteriler'" :btnTitle="'Müşteri Ekle'" @btnClick="addCustomer"></header-component>
     <TDynamicDialog></TDynamicDialog>
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;" v-if="isSpinner">
+      <TSpinner style="height: 50px; width: 50px;"></TSpinner>
+      <span style="font-weight: bold; color: turquoise;">Yükleniyor</span>
+    </div>
 
-    <span style="font-weight: bold; margin:20px 0;  font-size: 22px;">Tüm Müşteriler</span>
-    <div v-if="customerList.length != 0" class="customer-btn-area">
+    <span style="font-weight: bold; margin:20px 0;  font-size: 22px;" v-else>Tüm Müşteriler</span>
+    <div class="customer-btn-area" >
       <TDataTable :value="customerList" paginator :rows="7" tableStyle="width:100%;">
         <TColumn field="compName" sortable header="Firma Adı" style="25%"></TColumn>
         <TColumn field="compPerson" header="İletişim Personeli" style="25%"></TColumn>
@@ -13,10 +17,7 @@
         <TColumn field="compAddress" header="Adres" style="25%"></TColumn>
       </TDataTable>
     </div>
-    <div style="margin-top:20px; display:flex; flex-direction:column; align-items: center; justify-content:center;" v-else>
-      <TSpinner style="height: 50px; width: 50px;"></TSpinner>
-    </div>
-
+    
   </div>
 </template>
 
@@ -30,6 +31,7 @@ export default {
   name: "CustomerView",
   components:{HeaderComponent},
   setup() {
+    const isSpinner = ref(true);
     const AddCustomerPopup = defineAsyncComponent(() => import('@/views/customers/AddCustomerPopup.vue'));
     const dialog = useDialog();
     const addCustomer = () => {
@@ -51,12 +53,13 @@ export default {
       await getDocs(q).then((querySnapshot) => {
         querySnapshot.forEach((item) => {
           customerList.value.push(item.data());
+        });
+      });
 
-        })
-      })
+      isSpinner.value = false;
     });
 
-    return { addCustomer, customerList }
+    return { addCustomer, customerList, isSpinner }
   }
 }
 </script>

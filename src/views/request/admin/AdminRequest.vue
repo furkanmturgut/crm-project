@@ -9,28 +9,31 @@
     </TContextMenu>
     <TDynamicDialog></TDynamicDialog>
     <TDataTable @contextmenu="onCellRightClick" aria-haspopup="true" v-model:selection="selectedRequest"
-      :value="requestList" showGridlines paginator :rows="7" tableStyle="width:100%;">
+      :value="requestList" showGridlines paginator :rows="10" tableStyle="width:100%;" filterDisplay="row">
       <TColumn selectionMode="single" headerStyle="width: 3rem"></TColumn>
       <TColumn field="project" header="Proje Adı" style="20%"></TColumn>
       <TColumn field="company" header="Firma" style="20%"></TColumn>
       <TColumn field="title" header="Talep Başlığı" style="20%"></TColumn>
       <TColumn field="desc" header="Talep Açıklama" style="20%"></TColumn>
-      <TColumn field="state" header="Talep Durumu" style="20%">
+      <TColumn field="state" header="Talep Durumu" style="20%" :showFilterMenu="false">
         <template #body="slotProps">
           <TTag :value="slotProps.data.state ? 'Talep Alındı' : 'Talep Bekliyor '"
             :severity="getSeverity(slotProps.data)" />
         </template>
+        
       </TColumn>
     </TDataTable>
+    <TToast></TToast>
   </div>
 </template>
 
 <script>
 import HeaderComponent from '@/components/HeaderComponent.vue';
-import { getFirestore, collection, query, updateDoc, where, getDocs, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, query, updateDoc, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
 import { app } from '@/firebase/config';
-import { defineAsyncComponent, onMounted, ref } from 'vue';
+import { defineAsyncComponent, onMounted, ref, provide } from 'vue';
 import { useDialog } from 'primevue/usedialog';
+import { toastSuccess } from '@/components/Base/toast';
 export default {
   components: { HeaderComponent },
   name: "AdminRequest",
@@ -39,7 +42,7 @@ export default {
     // hucrede secilen satir
     const selectedRequest = ref();
     const dialog = useDialog();
-    const AdminReqPopup = defineAsyncComponent(() => import('@/views/request/AdminRequestPopup.vue'));
+    const AdminReqPopup = defineAsyncComponent(() => import('@/views/request/admin/AdminRequestPopup.vue'));
     const items = ref([
       { label: "Talebi Yanıtla", icon: 'pi pi-send', command: () => handleMenuItem('send') },
       { separator: true },
@@ -51,18 +54,21 @@ export default {
     const requestList = ref([]);
     onMounted(() => {
       getRequestData();
-      console.log("AA");
     });
 
+    // Popup'a verimizi gönderdik
+    provide("selectedRequest", selectedRequest);
+
     const getRequestData = async () => {
-      const q = query(collection(firestore, "requests"));
+      const q = query(collection(firestore, "requests"), orderBy("date", 'desc'));
       await getDocs(q).then((snapshot) => {
         snapshot.forEach((item) => {
           requestList.value.push(item.data());
         });
-      })
+      });
     }
 
+    // Tag stil ayari
     const getSeverity = (request) => {
       switch (request.state) {
         case true:
@@ -80,15 +86,16 @@ export default {
           const updatedData = { ...docDat, state: true };
           updateDoc(item.ref, updatedData);
         });
-      })
+      });
     }
 
     // Context menu elementine tiklandigi durum
     const handleMenuItem = (send) => {
+
       if (send === 'send') {
         dialog.open(AdminReqPopup, {
           props: {
-            header: 'Talep Durum',
+            header: 'Talebi Yanıtla',
             style: {
               width: '450px'
             },
@@ -96,13 +103,13 @@ export default {
           }
         });
       } else if (send === 'addRequest') {
+
         selectedUpdateRequest();
         // Burada veri listesi sifirlandi ve veriyi yeniden çektik
         requestList.value = [];
         getRequestData();
-
+        toastSuccess("Talep durumu alındı");
       }
-
     }
 
     const onCellRightClick = (event) => {

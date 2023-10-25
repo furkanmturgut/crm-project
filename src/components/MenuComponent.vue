@@ -9,8 +9,8 @@
                     :class="{ 'active': items.active }">
                     <i :class="items.icons"></i>
                     <a href="#"> {{ items.label }}</a>
-                    <span v-if="items.notification " style="color: black; font-weight: bold;">
-                        ({{ reqList.length }})
+                    <span v-if="items.notification" style="color: black; font-weight: bold;">
+                        ({{ notificationLength }})
                     </span>
                 </li>
             </ul>
@@ -20,15 +20,19 @@
 </template>
 
 <script>
-
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { getAuth, signOut } from 'firebase/auth';
 import { app } from '@/firebase/config';
 import { useConfirm } from 'primevue/useconfirm';
-import { getFirestore, collection, where, query, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, where, query, onSnapshot } from 'firebase/firestore';
 export default {
-    props: ["isUser"],
+    props: {
+        isUser: {
+            type: Boolean,
+            required: true
+        }
+    },
     setup(props) {
         const router = useRouter();
         const auth = getAuth(app);
@@ -51,15 +55,22 @@ export default {
         ]);
         const itemsControl = ref([]);
         const reqList = ref([]);
-        
-        //Bildirim sayisi gostermek icin
-        onMounted(async () => {
+        const getRequestData = async () => {
             const q = query(collection(firestore, "requests"), where("state", "==", false));
-            await getDocs(q).then((snapshot) => {
+            onSnapshot(q, (snapshot) => {
+                reqList.value = [];
                 snapshot.forEach((doc) => {
                     reqList.value.push(doc.data());
                 });
             });
+        }
+
+        onMounted(() => {
+            getRequestData();
+        });
+
+        const notificationLength = computed(() => {
+            return reqList.value.length;
         });
 
         if (props.isUser === false) {
@@ -81,13 +92,13 @@ export default {
                 selectMenu.active = true;
                 //Admin
                 if (index === 1) {
-                    router.push({ name: "HomeView" })
+                    router.push({ name: "HomeView" });
                 } else if (index == 2) {
-                    router.push({ name: "CustomerView" })
+                    router.push({ name: "CustomerView" });
                 } else if (index == 3) {
-                    console.log("İletişim")
+                    console.log("İletişim");
                 } else if (index == 8) {
-                    router.push({ name: "OffersView" })
+                    router.push({ name: "OffersView" });
                 } else if (index == 5) {
                     console.log("Görev")
                 } else if (index == 6 || index == 9) {
@@ -121,7 +132,7 @@ export default {
             })
         }
 
-        return { itemsControl, selectItem,reqList }
+        return { itemsControl, selectItem, notificationLength }
 
     }
 

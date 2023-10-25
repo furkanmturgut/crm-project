@@ -58,10 +58,9 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import addCustomer from '@/firebase/addCustomer';
 import { serverTimestamp } from 'firebase/firestore';
-import { useRouter } from 'vue-router';
 import createUser from '@/firebase/createUser.js';
 import { toastSuccess } from '@/components/Base/toast';
 export default {
@@ -75,12 +74,11 @@ export default {
         const companyMail = ref(null);
         const companyPass = ref('');
         const companyAddress = ref('');
-        const router = useRouter();
         const selectCustomerType = ref(null);
         let fullNameRegex = /[A-Za-z]+\s[A-Za-z]+/i;
         const phoneRegex = /\(\d\d\d\)\s\d\d\d-\d\d\d\d/i;
         const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
-
+        const closeDialog = inject("dialogRef",ref(''));
         console.log("Selected : ", selectCustomerType.value);
         const formValidation = (type) => {
             switch (type) {
@@ -156,13 +154,11 @@ export default {
 
 
                 await addCustomer(customerData);
-                
                 toastSuccess("Müşteri başarıyla eklendi")
                 errorState.value.spinner = false;
                 setTimeout(() => {
-                    router.go({ name: 'CustomerView' });
-
-                }, 1500);
+                    closeDialog.value.close();
+                }, 1000);
 
             }else {
               errorState.value.all = true;

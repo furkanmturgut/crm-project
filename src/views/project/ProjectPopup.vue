@@ -4,19 +4,19 @@
             <!-- Project Name -->
             <label>Proje Adı</label>
             <TInputText placeholder="Proje Adı Giriniz" v-model="projectName" @input="formValidation(0)"></TInputText>
-            <span style="color:red;" v-if="errorState.name">{{ errorMsg.name }}</span>
+            <small style="color:red; font-weight: bold;" v-if="errorState.name">{{ errorMsg.name }}</small>
 
             <!-- Project Company -->
             <label>Proje Teslim Edilecek Firma</label>
             <TAutoComplete inputStyle="width:100%" v-model="searchCompany" :suggestions="items" optionLabel="name" emptySearchMessage="Firma bulunamadı."
                 @complete="search"></TAutoComplete>
-            <span style="color:red;" v-if="errorState.company">{{ errorMsg.company }}</span>
+            <small style="color:red; font-weight: bold;" v-if="errorState.company">{{ errorMsg.company }}</small>
 
             <!-- Project Price -->
             <label>Proje Fiyat</label>
             <TInputText :class="[errorState.currency ? 'p-invalid' : '']" placeholder="Proje Fiyatı TL"
                 v-model="projectPrice" type="number" @input="formValidation(1)"></TInputText>
-            <span style="color:red;" v-if="errorState.currency">{{ errorMsg.currency }}</span>
+            <span style="color:red; font-weight: bold;" v-if="errorState.currency">{{ errorMsg.currency }}</span>
             <div style="display: flex; flex-direction: column;"
                 v-if="projectPrice != '' && projectPrice.trim().length >= 0">
                 <small>Güncel Kur ile USD Fiyatı : <small style="font-weight: bold;"> {{
@@ -32,8 +32,8 @@
             <div style="width: 100%; margin-top:10px; display: flex; " v-if="detailLength <= 60">
                 <TKnob style="margin-right: auto;" :strokeWidth="5" v-model="detailLength" :max="60" :min="0" :size="50"
                     valueColor="blue" textColor="black"></TKnob>
-                <span style="color:red; align-items: center; justify-content: center; margin-top: 10px;"
-                    v-if="errorState.detail">{{ errorMsg.detail }}</span>
+                <small style="color:red; font-weight: bold; align-items: center; justify-content: center; margin-top: 10px;"
+                    v-if="errorState.detail">{{ errorMsg.detail }}</small>
             </div>
 
             <!-- Project Type -->
@@ -51,15 +51,15 @@
                 <TRadioButton v-model="selectProject" value="Fullstack Uygulama Geliştirme" name="project"></TRadioButton>
                 <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Fullstack Uygulama Geliştirme</label>
             </div>
-            <span
+            <small
                 style="color:red; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-weight: bold; "
-                v-if="errorState.projectType">{{ errorMsg.projectType }}</span>
+                v-if="errorState.projectType">{{ errorMsg.projectType }}</small>
             <TButton type="submit" label="KAYDET" style="background-color: turquoise; border: 1px solid turquoise;">
             </TButton>
 
-            <span
+            <small
               style="color:red; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-weight: bold; margin-top: 10px"
-              v-if="errorState.all">{{ errorMsg.all }}</span>
+              v-if="errorState.all">{{ errorMsg.all }}</small>
             <TToast></TToast>
         </form>
     </div>
@@ -67,11 +67,10 @@
 
 <script>
 import axios from 'axios';
-import { computed, ref } from 'vue';
+import { computed, ref,inject } from 'vue';
 import saveProject from '@/firebase/saveProject.js';
 import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
-import { useRouter } from 'vue-router';
 import { toastSuccess } from '@/components/Base/toast';
 export default {
     name: "ProjectPopup",
@@ -79,7 +78,6 @@ export default {
         const selectProject = ref(null);
         const searchCompany = ref(null);
         const customerList = ref([]);
-        const router = useRouter();
         const firestore = getFirestore(app);
         const USD = ref(null);
         const EURO = ref(null);
@@ -89,7 +87,7 @@ export default {
         const errorState = ref({ currency: false, name: false, detail: false, projectType: false, company: false,all:false });
         const errorMsg = ref({ currency: null, name: null, detail: null, projectType: null, company: null,all:false });
         const items = ref([]);
-
+        const closeDialog = inject("dialogRef", ref(''));
         // AutoComplete islemi
         const getUserFunc = (async () => {
             const q = query(collection(firestore, "customers"));
@@ -189,8 +187,8 @@ export default {
                         toastSuccess("Proje Başarıyla Eklendi.");
 
                         setTimeout(() => {
-                            router.go({ name: "ProjectView" });
-                        }, 1500);
+                            closeDialog.value.close();
+                        }, 1000);
                     } else {
                         errorState.value.company = true;
                         errorMsg.value.company = "Projenin yapıldığı firmayı seçiniz"

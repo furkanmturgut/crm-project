@@ -21,7 +21,7 @@
 
 <script>
 import HeaderComponent from "@/components/HeaderComponent.vue";
-import { defineAsyncComponent, onMounted, ref } from 'vue';
+import { defineAsyncComponent, onMounted, ref, provide } from 'vue';
 import { useDialog } from "primevue/usedialog";
 import { getFirestore, query, collection, where, getDocs } from "firebase/firestore";
 import { app } from '@/firebase/config';
@@ -49,6 +49,9 @@ export default {
                 }
             });
         }
+
+        // BU PROVIDE ILE BUTUN DIALOGLARI ACIP KAPATIYORUZ //
+        provide("dialogRef",dialog);
 
         onMounted(async () => {
             if (user.displayName != null) {

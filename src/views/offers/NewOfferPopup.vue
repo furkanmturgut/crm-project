@@ -25,21 +25,20 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import { serverTimestamp } from 'firebase/firestore';
 import addOfferMail from '@/firebase/addOfferMail';
 import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
-import { useRouter } from 'vue-router';
 import {toastError, toastSuccess} from '@/components/Base/toast';
 export default {
     name: "NewOfferPopup",
     setup() {
         const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
         const sendMail = ref(null);
+        const closeDialog = inject("dialogRef", ref(''));
         const sendTitle = ref(null);
         const sendContent = ref(null);
-        const router = useRouter();
         const firestore = getFirestore(app);
         const customerList = ref([]);
         const searchCompany = ref(null)
@@ -91,8 +90,8 @@ export default {
                 toastSuccess("Mail başarıyla yollandı")
 
                 setTimeout(() => {
-                    router.go({ name: "OffersView" })
-                }, 1500);
+                    closeDialog.value.close();
+                }, 1000);
 
             }else {
               toastError("Mail gönderilemedi işlemleri kontrol edin");
