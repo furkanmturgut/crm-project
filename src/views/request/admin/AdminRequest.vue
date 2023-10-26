@@ -11,7 +11,7 @@
 
     <TDynamicDialog></TDynamicDialog>
     <TDataTable @contextmenu="onCellRightClick" selectionMode="single" aria-haspopup="true"
-      v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList" showGridlines paginator
+      v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList"  paginator
       :rows="10" tableStyle="min-width:100%;" filterDisplay="row" resizableColumns columnResizeMode="expand">
 
       <template #header>

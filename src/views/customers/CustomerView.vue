@@ -1,6 +1,13 @@
 <template>
   <div class="customer-panel">
     <header-component :mainTitle="'Müşteriler'" :btnTitle="'Müşteri Ekle'" @btnClick="addCustomer"></header-component>
+
+    <TContextMenu ref="menu" :model="items" @select="handleMenuItem">
+      <template #item="{ props, label }">
+        <span style="margin: 8px  10px; cursor:pointer; height: 20px;" v-bind="props.icon" />
+        <span style="margin: 8px  0; cursor: pointer; height: 20px;">{{ label }}</span>
+      </template>
+    </TContextMenu>
     <TDynamicDialog></TDynamicDialog>
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;" v-if="isSpinner">
       <TSpinner style="height: 50px; width: 50px;"></TSpinner>
@@ -8,16 +15,18 @@
     </div>
 
     <span style="font-weight: bold; margin:20px 0;  font-size: 22px;" v-else>Tüm Müşteriler</span>
-    <div class="customer-btn-area" >
-      <TDataTable :value="customerList" paginator :rows="7" tableStyle="width:100%;">
-        <TColumn field="compName" sortable header="Firma Adı" style="25%"></TColumn>
-        <TColumn field="compPerson" header="İletişim Personeli" style="25%"></TColumn>
-        <TColumn field="compPhone" header="İletişim" style="25%"></TColumn>
-        <TColumn field="compEmail" header="E-Mail" style="25%"></TColumn>
-        <TColumn field="compAddress" header="Adres" style="25%"></TColumn>
+    <div class="customer-btn-area">
+      <TDataTable :value="customerList" paginator :rows="10" tableStyle="width:100%;" selectionMode="single"
+        aria-haspopup="true" v-model:selection="selectedRequest" @contextmenu="onCellRightClick">
+        <TColumn field="compName" sortable header="Firma Adı"></TColumn>
+        <TColumn field="compPerson" header="İletişim Personeli"></TColumn>
+        <TColumn field="compPhone" header="İletişim"></TColumn>
+        <TColumn field="compEmail" header="E-Mail"></TColumn>
+        <TColumn field="compAddress" header="Adres"></TColumn>
+        <TColumn field="" header="Çözülmemiş Talep Sayısı"></TColumn>
       </TDataTable>
     </div>
-    
+
   </div>
 </template>
 
@@ -29,9 +38,11 @@ import { app } from '@/firebase/config';
 import HeaderComponent from '@/components/HeaderComponent.vue';
 export default {
   name: "CustomerView",
-  components:{HeaderComponent},
+  components: { HeaderComponent },
   setup() {
     const isSpinner = ref(true);
+    const selectedRequest = ref();
+    const menu = ref();
     const AddCustomerPopup = defineAsyncComponent(() => import('@/views/customers/AddCustomerPopup.vue'));
     const dialog = useDialog();
     const addCustomer = () => {
@@ -40,10 +51,37 @@ export default {
           header: "Müşteri Ekle",
           style: {
             width: '450px'
+            //breakpoints
           },
           modal: true
         }
       });
+    }
+
+    const items = ref([
+      { label: "Görüşme Başlat (Chat)", icon: 'pi pi-comment', command: () => handleMenuItem('meeting') },
+      { separator: true },
+      { label: "Görüşme Talebi Oluştur", icon: 'pi pi-calendar-times', command: () => handleMenuItem('meeting') },
+      { separator: true },
+      {
+        label: "Talep Bilgileri", icon: 'pi pi-info-circle', command: () => handleMenuItem('requestInfo')
+      }
+    ]);
+
+    // Context menu elementine tiklandigi durum
+    const handleMenuItem = (route) => {
+      if (route === "meeting") {
+        console.log("Görüşme alanı");
+      } else if (route === "requestInfo") {
+        console.log("Dialog açılacak!");
+      }
+
+    }
+
+    const onCellRightClick = (event) => {
+      if (selectedRequest.value !== undefined) {
+        menu.value.show(event);
+      }
     }
 
     const customerList = ref([]);
@@ -59,7 +97,7 @@ export default {
       isSpinner.value = false;
     });
 
-    return { addCustomer, customerList, isSpinner }
+    return { addCustomer, customerList, isSpinner, items, handleMenuItem, onCellRightClick, menu, selectedRequest }
   }
 }
 </script>
@@ -104,5 +142,4 @@ export default {
   flex-direction: row;
   justify-content: center;
 }
-
 </style>
