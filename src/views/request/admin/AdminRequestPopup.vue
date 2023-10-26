@@ -12,11 +12,6 @@
         <span class="request-span">{{ dateFormat }}</span>
       </div>
 
-      <label>Talep Durumu </label>
-      <TDropdown :options="requestState" placeholder="Talep Bekliyor" optionLabel="name" v-model="selectedRequest"
-        style="width: 100%; height: 50px;">
-      </TDropdown>
-
       <label>Talep Başlık</label>
       <div class="request-div">
         <span class="request-span">{{ data.title }}</span>
@@ -26,6 +21,11 @@
       <div class="request-div" style="height: max-content;">
         <span class="request-span">{{ data.desc }}</span>
       </div>
+      
+      <label>Talep Durumu </label>
+      <TDropdown :options="requestState" placeholder="Talep Bekliyor" optionLabel="name" v-model="selectedRequest"
+        style="width: 100%; height: 50px;">
+      </TDropdown>
 
       <label>Talebe Yanıt Yaz</label>
       <TextArea @input="formValidation(0)" v-model="sendRequestDesc" autoResize rows="5" cols="30"></TextArea>

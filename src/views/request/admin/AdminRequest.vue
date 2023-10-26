@@ -1,24 +1,51 @@
 <template>
   <div class="request-area">
     <header-component :mainTitle="'Tüm Talepler'"></header-component>
+
     <TContextMenu ref="menu" :model="items" @select="handleMenuItem">
       <template #item="{ props, label }">
-        <span style="margin: 8px 10px; cursor:pointer;" v-bind="props.icon" />
-        <span style="margin: 8px 0; cursor: pointer;">{{ label }}</span>
+        <span style="margin: 8px  10px; cursor:pointer; height: 20px;" v-bind="props.icon" />
+        <span style="margin: 8px  0; cursor: pointer; height: 20px;">{{ label }}</span>
       </template>
     </TContextMenu>
+
     <TDynamicDialog></TDynamicDialog>
     <TDataTable @contextmenu="onCellRightClick" selectionMode="single" aria-haspopup="true"
       v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList" showGridlines paginator
-      :rows="10" tableStyle="width:100%;" filterDisplay="row">
-      <TColumn field="project" header="Proje Adı" style="20%"></TColumn>
-      <TColumn field="company" header="Firma" style="20%"></TColumn>
-      <TColumn field="title" header="Talep Başlığı" style="20%"></TColumn>
-      <TColumn field="desc" header="Talep Açıklama" style="20%"></TColumn>
-      <TColumn field="state" header="Talep Durumu" style="20%" :showFilterMenu="false">
+      :rows="10" tableStyle="min-width:100%;" filterDisplay="row" resizableColumns columnResizeMode="expand">
+
+      <template #header>
+        <div style="display: flex; justify-content: end;">
+          <TButton icon="pi pi-refresh" rounded raised @click="refreshData"
+            style="color:white; background-color: turquoise; border: 1px solid turquoise; margin-right: 10px;" />
+        
+          <download-excel :data="requestList" >
+            <TButton icon="pi pi-download" rounded raised
+            style="color:white; background-color: turquoise; border: 1px solid turquoise;"/>
+          </download-excel>
+
+        </div>
+      </template>
+
+      <TColumn field="project" header="Proje Adı" exportHeader="Proje 1"></TColumn>
+      <TColumn field="company" header="Firma"></TColumn>
+      <TColumn field="title" header="Talep Başlığı"></TColumn>
+      <TColumn field="desc" header="Talep Açıklama"></TColumn>
+      <TColumn field="state" header="Talep Durumu" :showFilterMenu="false" style="min-width: 50px;">
         <template #body="{ data }">
           <TTag :value="data.state ? 'Talep Alındı' : 'Talep Bekliyor '" :severity="getSeverity(data.state)" />
         </template>
+
+        <template #filter="{ filterModel, filterCallback }">
+          <TDropdown v-model="filterModel.value" @change="filterCallback()" :options="statuses" placeholder="Durum Seçin"
+            showClear class="dropdown-style">
+            <template #option="slotProps">
+              <TTag :value="slotProps.option ? 'Talep Alındı' : 'Talep Bekliyor'"
+                :severity="getSeverity(slotProps.option)" />
+            </template>
+          </TDropdown>
+        </template>
+
       </TColumn>
     </TDataTable>
 
@@ -34,7 +61,6 @@ import { defineAsyncComponent, onMounted, ref, provide } from 'vue';
 import { useDialog } from 'primevue/usedialog';
 import { toastSuccess } from '@/components/Base/toast';
 import { FilterMatchMode } from 'primevue/api';
-
 export default {
   components: { HeaderComponent },
   name: "AdminRequest",
@@ -43,6 +69,7 @@ export default {
     // hucrede secilen satir
     const selectedRequest = ref();
     const dialog = useDialog();
+    const filters = ref();
     const AdminReqPopup = defineAsyncComponent(() => import('@/views/request/admin/AdminRequestPopup.vue'));
     const items = ref([
       { label: "Talebi Yanıtla", icon: 'pi pi-send', command: () => handleMenuItem('send') },
@@ -51,10 +78,17 @@ export default {
         label: "Talebi Al", icon: 'pi pi-check-circle', command: () => handleMenuItem('addRequest')
       }
     ]);
-    const filters = ref({
-      status: { value: null, matchMode: FilterMatchMode.EQUALS },
-    });
 
+    // init Filters ile hem filtre silme hemde filtreleme islemleri yapilir
+
+    const initFilters = () => {
+      filters.value = {
+        state: { value: null, matchMode: FilterMatchMode.EQUALS },
+      };
+    }
+    initFilters();
+
+    const statuses = ref([true, false]);
     const firestore = getFirestore(app);
     const requestList = ref([]);
     onMounted(() => {
@@ -74,8 +108,8 @@ export default {
     }
 
     // Tag stil ayari
-    const getSeverity = (request) => {
-      switch (request) {
+    const getSeverity = (project) => {
+      switch (project) {
         case true:
           return 'success'
         case false:
@@ -123,7 +157,13 @@ export default {
       }
     }
 
-    return { requestList, getSeverity, menu, items, selectedRequest, onCellRightClick, handleMenuItem, filters }
+    const refreshData = () => {
+      requestList.value = [];
+      getRequestData();
+      initFilters();
+    }
+
+    return { requestList, getSeverity, menu, items, selectedRequest, onCellRightClick, handleMenuItem, filters, statuses, refreshData }
   }
 }
 </script>
@@ -134,5 +174,13 @@ export default {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+
+.dropdown-style {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
