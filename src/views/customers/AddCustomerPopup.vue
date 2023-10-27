@@ -142,13 +142,15 @@ export default {
               errorState.value.spinner = true;
 
               const customerData = {
+                    id:Date.now(),
                     compName: companyName.value,
                     compPerson: companyPerson.value,
                     compPhone: companyPhone.value,
                     compEmail: companyMail.value,
                     compAddress: companyAddress.value,
                     addDate: serverTimestamp(),
-                    customerType: selectCustomerType.value
+                    customerType: selectCustomerType.value,
+                    requestCount: 0
                 };
                 createUser(companyMail.value, companyPass.value,companyName.value);
 

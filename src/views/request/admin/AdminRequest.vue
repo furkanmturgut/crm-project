@@ -11,19 +11,18 @@
 
     <TDynamicDialog></TDynamicDialog>
     <TDataTable @contextmenu="onCellRightClick" selectionMode="single" aria-haspopup="true"
-      v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList"  paginator
-      :rows="10" tableStyle="min-width:100%;" filterDisplay="row" resizableColumns columnResizeMode="expand">
+      v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList" paginator :rows="10"
+      tableStyle="min-width:100%;" filterDisplay="row" resizableColumns columnResizeMode="expand">
 
       <template #header>
         <div style="display: flex; justify-content: end;">
           <TButton icon="pi pi-refresh" rounded raised @click="refreshData"
             style="color:white; background-color: turquoise; border: 1px solid turquoise; margin-right: 10px;" />
-        
-          <download-excel :data="requestList" >
-            <TButton icon="pi pi-download" rounded raised
-            style="color:white; background-color: turquoise; border: 1px solid turquoise;"/>
-          </download-excel>
 
+          <download-excel :data="requestList">
+            <TButton icon="pi pi-download" rounded raised
+              style="color:white; background-color: turquoise; border: 1px solid turquoise;" />
+          </download-excel>
         </div>
       </template>
 
@@ -69,7 +68,9 @@ export default {
     // hucrede secilen satir
     const selectedRequest = ref();
     const dialog = useDialog();
+    const reqList = ref([]);
     const filters = ref();
+    const reqCount = ref(null);
     const AdminReqPopup = defineAsyncComponent(() => import('@/views/request/admin/AdminRequestPopup.vue'));
     const items = ref([
       { label: "Talebi Yanıtla", icon: 'pi pi-send', command: () => handleMenuItem('send') },
@@ -80,7 +81,6 @@ export default {
     ]);
 
     // init Filters ile hem filtre silme hemde filtreleme islemleri yapilir
-
     const initFilters = () => {
       filters.value = {
         state: { value: null, matchMode: FilterMatchMode.EQUALS },
@@ -99,6 +99,7 @@ export default {
     provide("selectedRequest", selectedRequest);
 
     const getRequestData = async () => {
+      requestList.value = [];
       const q = query(collection(firestore, "requests"), orderBy("date", 'desc'));
       await getDocs(q).then((snapshot) => {
         snapshot.forEach((item) => {
@@ -117,20 +118,50 @@ export default {
       }
     }
 
+    // request tablosunda ki talep güncellendi
     const selectedUpdateRequest = async () => {
       const q = query(collection(firestore, "requests"), where("id", "==", selectedRequest.value.id));
       onSnapshot(q, (snapshot) => {
         snapshot.forEach((item) => {
           const docDat = item.data();
-          const updatedData = { ...docDat, state: true };
+          const updatedData = { ...docDat, state: true, };
           updateDoc(item.ref, updatedData);
         });
       });
     }
 
+    const requestStateCount = async () => {
+      const q = query(collection(firestore, "requests"), where("company", "==", selectedRequest.value.company));
+      await getDocs(q).then((snapshot) => {
+        snapshot.forEach((item) => {
+          reqList.value.push(item.data());
+        });
+      });
+
+      const filteredReq = reqList.value.filter((item) => {
+        return item.state === false;
+      });
+      reqCount.value = filteredReq.length;
+      if (reqCount.value > 0) {
+        reqCount.value;
+      } else {
+        reqCount.value = 0;
+      }
+
+      const qa  =  query(collection(firestore, "customers"), where("compName", "==", selectedRequest.value.company));
+       onSnapshot(qa, (snapshot) => {
+        snapshot.forEach((item) => {
+          const docDat = item.data();
+          const updatedData = { ...docDat, requestCount: reqCount.value };
+          updateDoc(item.ref, updatedData);
+        });
+      });
+    }
+
+
+
     // Context menu elementine tiklandigi durum
     const handleMenuItem = (send) => {
-
       if (send === 'send') {
         dialog.open(AdminReqPopup, {
           props: {
@@ -142,10 +173,10 @@ export default {
           }
         });
       } else if (send === 'addRequest') {
-
         selectedUpdateRequest();
         // Burada veri listesi sifirlandi ve veriyi yeniden çektik
         requestList.value = [];
+        requestStateCount();
         getRequestData();
         toastSuccess("Talep durumu alındı");
       }

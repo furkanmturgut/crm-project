@@ -8,8 +8,8 @@
 
             <!-- Project Company -->
             <label>Proje Teslim Edilecek Firma</label>
-            <TAutoComplete inputStyle="width:100%" v-model="searchCompany" :suggestions="items" optionLabel="name" emptySearchMessage="Firma bulunamadı."
-                @complete="search"></TAutoComplete>
+            <TDropdown v-model="searchCompany" :options="customerList" optionLabel="compName" placeholder="Firmayı Seçin"
+                showClear></TDropdown>
             <small style="color:red; font-weight: bold;" v-if="errorState.company">{{ errorMsg.company }}</small>
 
             <!-- Project Price -->
@@ -58,8 +58,8 @@
             </TButton>
 
             <small
-              style="color:red; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-weight: bold; margin-top: 10px"
-              v-if="errorState.all">{{ errorMsg.all }}</small>
+                style="color:red; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-weight: bold; margin-top: 10px"
+                v-if="errorState.all">{{ errorMsg.all }}</small>
             <TToast></TToast>
         </form>
     </div>
@@ -67,7 +67,7 @@
 
 <script>
 import axios from 'axios';
-import { computed, ref,inject } from 'vue';
+import { computed, ref, inject } from 'vue';
 import saveProject from '@/firebase/saveProject.js';
 import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
@@ -84,9 +84,8 @@ export default {
         const projectPrice = ref('');
         const projectName = ref('');
         const projectDetail = ref('');
-        const errorState = ref({ currency: false, name: false, detail: false, projectType: false, company: false,all:false });
-        const errorMsg = ref({ currency: null, name: null, detail: null, projectType: null, company: null,all:false });
-        const items = ref([]);
+        const errorState = ref({ currency: false, name: false, detail: false, projectType: false, company: false, all: false });
+        const errorMsg = ref({ currency: null, name: null, detail: null, projectType: null, company: null, all: false });
         const closeDialog = inject("dialogRef", ref(''));
         // AutoComplete islemi
         const getUserFunc = (async () => {
@@ -99,18 +98,6 @@ export default {
         });
         getUserFunc();
 
-        const search = () => {
-            items.value = [];
-            const filteredUser = customerList.value.filter((item) => {
-                return item.compName.toLowerCase().includes(searchCompany.value.toLowerCase());
-            });
-
-            filteredUser.forEach((item) => {
-                items.value.push({
-                    name: item.compName
-                });
-            })
-        }
 
         // Kur ile cevirme islemleri
         const api = "https://finans.truncgil.com/today.json";
@@ -166,21 +153,19 @@ export default {
         }
 
         const saveProjectForm = async () => {
-            if (projectName.value.length > 5 && projectPrice.value.length > 0 && projectDetail.value.length >= 60) {
+            if (projectName.value.length >= 5 && projectPrice.value.length > 0 && projectDetail.value.length >= 60) {
                 if (selectProject.value != null) {
                     errorState.value.projectType = false;
 
                     if (searchCompany.value != null) {
                         errorState.value.company = false;
-                        const a = JSON.stringify(searchCompany.value.name);
-                        const cName = a.replace(/"/g, '');
-
+                    
                         const data = {
                             pName: projectName.value,
                             pPrice: projectPrice.value,
                             pDetail: projectDetail.value,
                             pType: selectProject.value,
-                            pCompany: cName,
+                            pCompany: searchCompany.value.compName,
                         };
 
                         await saveProject(data);
@@ -198,13 +183,13 @@ export default {
                     errorState.value.projectType = true;
                     errorMsg.value.projectType = "Proje tipini seçiniz";
                 }
-            }else {
-              errorState.value.all = true;
-              errorMsg.value.all = "Tüm alanları doldurunuz";
+            } else {
+                errorState.value.all = true;
+                errorMsg.value.all = "Tüm alanları doldurunuz";
             }
         }
 
-        return { selectProject, projectPrice, tryToUsd, tryToEuro, formValidation, errorMsg, errorState, projectName, projectDetail, detailLength, saveProjectForm, search, items, searchCompany }
+        return { selectProject, projectPrice, tryToUsd, tryToEuro, formValidation, errorMsg, errorState, projectName, projectDetail, detailLength, saveProjectForm, customerList, searchCompany }
     }
 
 }

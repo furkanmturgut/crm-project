@@ -1,9 +1,8 @@
 <template>
     <form @submit.prevent="sendToRequest" style="display: flex; flex-direction: column;">
         <label>Projeyi seçin</label>
-        <TAutoComplete inputStyle="width:100%"  v-model="searchProject" @change="projectList" :suggestions="items" emptySearchMessage="Proje bulunamadı."
-            optionLabel="name" @complete="search"></TAutoComplete>
-
+        <TDropdown v-model="searchProject" :options="projectList" optionLabel="pName" placeholder="Proje Seçin" showClear>
+        </TDropdown>
         <label>Talep Başlığı</label>
         <TInputText placeholder="Başlık" v-model="sendTitle" @input="formValidation(0)"></TInputText>
         <small style="font-weight: bold; color:red;" v-if="errorState.title">{{ errorMsg.title }}</small>
@@ -22,7 +21,7 @@
 
 <script>
 import { onMounted, ref, inject } from 'vue';
-import { getFirestore, getDocs, where, query, collection, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, getDocs, where, query, collection, serverTimestamp, onSnapshot, updateDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { app } from '@/firebase/config';
 import addRequest from '@/firebase/addRequest';
@@ -37,7 +36,8 @@ export default {
         let compName = null;
         const user = auth.currentUser;
         const projectList = ref([]);
-        const items = ref([]);
+        const requestCompayId = ref([]);
+        const reqCount = ref(null);
         const errorState = ref({ title: false, description: false, all: false });
         const errorMsg = ref({ title: null, description: null, all: null });
         onMounted(async () => {
@@ -53,19 +53,6 @@ export default {
                 });
             });
         });
-
-        const search = () => {
-            items.value = [];
-            const filteredProject = projectList.value.filter((item) => {
-                return item.pName.toLowerCase().includes(searchProject.value.toLowerCase());
-            });
-
-            filteredProject.forEach((item) => {
-                items.value.push({
-                    name: item.pName
-                });
-            });
-        }
 
         const formValidation = (type) => {
             switch (type) {
@@ -88,25 +75,49 @@ export default {
             }
         }
 
-        const closeDialog = inject('dialogRef',ref(''));
-        // Seçilen porje tekrar filtrelenecek!
+        // taleplerden gerekli firmanınn toplam talebini aldık ve customers'e eklendi!
+        const totalRequest = async () => {
+            const q = query(collection(firestore, "requests"), where("company", "==", user.displayName));
+            await getDocs(q).then((snapshot) => {
+                snapshot.forEach((item) => {
+                    requestCompayId.value.push(item.data());
+                });
+            });
+            const filteredData = requestCompayId.value.filter((item) => {
+                return item.state === false
+            });
+            reqCount.value = filteredData.length;
+            console.log(reqCount.value);
+
+            const qa = query(collection(firestore, "customers"), where("compName", "==", user.displayName));
+            onSnapshot(qa, (snapshot) => {
+                snapshot.forEach((item) => {
+                    const docDat = item.data();
+                    const updatedData = { ...docDat, requestCount: reqCount.value };
+                    updateDoc(item.ref, updatedData);
+                });
+            });
+        }
+
+
+        const closeDialog = inject('dialogRef', ref(''));
+        // Seçilen proje tekrar filtrelenecek!
         const sendToRequest = async () => {
-            if (sendTitle.value.length > 5 && sendContent.value.length > 19) {
-                if (searchProject.value != null ) {
-                    const a = JSON.stringify(searchProject.value.name);
-                    const projectName = a.replace(/"/g, '');
+            if (sendTitle.value.length >= 5 && sendContent.value.length >= 20) {
+                if (searchProject.value != null) {
                     const id = Date.now();
                     let data = {
                         id: id,
                         title: sendTitle.value,
                         desc: sendContent.value,
                         date: serverTimestamp(),
-                        project: projectName,
-                        company:user.displayName,
+                        project: searchProject.value.pName,
+                        company: user.displayName,
                         state: false,
                     };
                     await addRequest(data);
                     toastSuccess("Talep başarıyla oluşturuldu");
+                    totalRequest();
                     setTimeout(() => {
                         closeDialog.value.close();
                     }, 1000);
@@ -120,7 +131,7 @@ export default {
             }
         }
 
-        return { searchProject, sendContent, sendTitle, projectList, search, items, sendToRequest, formValidation, errorMsg, errorState }
+        return { searchProject, sendContent, sendTitle, projectList, sendToRequest, formValidation, errorMsg, errorState }
     }
 
 }

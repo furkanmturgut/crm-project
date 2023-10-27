@@ -1,12 +1,12 @@
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDYSEr2LlcQZ6CAk3_5MerBmlUQhfAvl5Q",
-  authDomain: "crm-trkv.firebaseapp.com",
-  projectId: "crm-trkv",
-  storageBucket: "crm-trkv.appspot.com",
-  messagingSenderId: "182146763135",
-  appId: "1:182146763135:web:64eb0e86bdbe144f63324a"
+  apiKey: "AIzaSyCD8IAbgoMm6EOpE7ADui_FqL_M6pqT0VQ",
+  authDomain: "crm-project-479c4.firebaseapp.com",
+  projectId: "crm-project-479c4",
+  storageBucket: "crm-project-479c4.appspot.com",
+  messagingSenderId: "992614017033",
+  appId: "1:992614017033:web:8cef6b7a74fab37132b0d8"
 };
 
 const app = initializeApp(firebaseConfig);
