@@ -1,31 +1,28 @@
 <template >
-    <div style="background-color: turquoise; height:100vh; width: 200px ">
-        <div style="display: flex; align-items: center; justify-content: center; ">
-            <img alt="Turkuvaz" src="@/assets/logo.png" style="width:70px; height: 70px; margin: 20px 0;">
+    <div class="container">
+        <div class="col1">
+            <div class="menu">
+                <div style="display: flex; align-items: center; justify-content: center; ">
+                    <img alt="Turkuvaz" src="@/assets/logo.png" style="width:70px; height: 70px; margin: 20px  0;">
+                </div>
+                <div>
+                    <ul>
+                        <li v-for="items in itemsControl[0]" :key="items.id" @click="selectItem(items.id)"
+                            :class="{ 'active': items.active }">
+                            <i :class="items.icons"></i>
+                            <a href="#"> {{ items.label }}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div>
-            <ul>
-                <li v-for="items in itemsControl[0]" :key="items.id" @click="selectItem(items.id)"
-                    :class="{ 'active': items.active }">
-                    <i :class="items.icons"></i>
-                    <a href="#"> {{ items.label }}</a>
-                    <span v-if="items.notification" style="color: black; font-weight: bold;">
-                        ({{ notificationLength }})
-                    </span>
-                </li>
-            </ul>
-        </div>
-        <TConfirmDialog></TConfirmDialog>
+
     </div>
 </template>
 
 <script>
-import { computed, onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { getAuth, signOut } from 'firebase/auth';
-import { app } from '@/firebase/config';
-import { useConfirm } from 'primevue/useconfirm';
-import { getFirestore, collection, where, query, onSnapshot } from 'firebase/firestore';
 export default {
     props: {
         isUser: {
@@ -35,9 +32,6 @@ export default {
     },
     setup(props) {
         const router = useRouter();
-        const auth = getAuth(app);
-        const firestore = getFirestore(app);
-        const confirm = useConfirm();
         const menuItems = ref([
             { id: 1, label: 'Anasayfa', active: true, icons: 'pi pi-home', isUsers: true, isAdmins: true },
             { id: 2, label: 'Müşteri Yönetimi', active: false, icons: 'pi pi-id-card', isAdmins: true },
@@ -49,30 +43,10 @@ export default {
             { id: 6, label: 'Projeler & Ürünler', active: false, icons: 'pi pi-folder-open', isAdmins: true },
             { id: 9, label: 'Projelerim', active: false, icons: 'pi pi-folder-open', isUsers: true },
             { id: 10, label: 'Talep Oluştur', active: false, icons: 'pi pi-file-edit', isUsers: true },
-            { id: 11, label: 'Bildirimler', active: false, icons: 'pi pi-inbox', notification: true, isUsers: true, isAdmins: true },
-            { id: 7, label: 'Çıkış Yap', active: false, icons: 'pi pi-power-off', isAdmins: true, isUsers: true },
 
         ]);
         const itemsControl = ref([]);
-        const reqList = ref([]);
-        const getRequestData = async () => {
-            const q = query(collection(firestore, "requests"), where("state", "==", false));
-            onSnapshot(q, (snapshot) => {
-                reqList.value = [];
-                snapshot.forEach((doc) => {
-                    reqList.value.push(doc.data());
-                });
-            });
-        }
-
-        onMounted(() => {
-            getRequestData();
-        });
-
-        const notificationLength = computed(() => {
-            return reqList.value.length;
-        });
-
+      
         if (props.isUser === false) {
             const a = menuItems.value.filter((item) => {
                 return item.isAdmins == true;
@@ -103,8 +77,6 @@ export default {
                     console.log("Görev")
                 } else if (index == 6 || index == 9) {
                     router.push({ name: "ProjectView" })
-                } else if (index == 7) {
-                    confirmDialog();
                 } else if (index == 12) {
                     router.push({ name: "AdminRequest" })
                 }
@@ -117,22 +89,8 @@ export default {
                 }
             }
         }
-        const confirmDialog = () => {
-            confirm.require({
-                header: "Çıkış İşlemi",
-                message: "Çıkış yapmak istediğinize emin misiniz ?",
-                accept: () => {
-                    signOut(auth).then(() => {
-                        router.go({ name: "LoginView" })
-                    });
-                },
-                acceptLabel: "Evet",
-                reject: () => { },
-                rejectLabel: "İptal"
-            })
-        }
-
-        return { itemsControl, selectItem, notificationLength }
+   
+        return { itemsControl, selectItem }
 
     }
 
@@ -140,6 +98,23 @@ export default {
 </script>
 
 <style scoped>
+.container {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.col1 {
+    flex: 1;
+}
+
+
+
+.menu {
+    background-color: turquoise;
+    height: 100vh;
+    width: 200px;
+}
+
 i {
     color: black;
     margin: 8px;
@@ -154,7 +129,7 @@ ul {
 li {
     position: relative;
     padding: 10px;
-    margin: 10px 4px;
+    margin: 4px;
     cursor: pointer;
 }
 
