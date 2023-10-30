@@ -21,7 +21,7 @@
 
 <script>
 import { onMounted, ref, inject } from 'vue';
-import { getFirestore, getDocs, where, query, collection, serverTimestamp, onSnapshot, updateDoc } from 'firebase/firestore';
+import { getFirestore, getDocs, where, query, collection, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { app } from '@/firebase/config';
 import addRequest from '@/firebase/addRequest';
@@ -77,20 +77,22 @@ export default {
 
         // taleplerden gerekli firmanınn toplam talebini aldık ve customers'e eklendi!
         const totalRequest = async () => {
+            console.log(user.displayName);
             const q = query(collection(firestore, "requests"), where("company", "==", user.displayName));
             await getDocs(q).then((snapshot) => {
                 snapshot.forEach((item) => {
                     requestCompayId.value.push(item.data());
                 });
             });
+            console.log(requestCompayId.value);
             const filteredData = requestCompayId.value.filter((item) => {
                 return item.state === false
             });
             reqCount.value = filteredData.length;
-            console.log(reqCount.value);
 
+            console.log(typeof reqCount.value);
             const qa = query(collection(firestore, "customers"), where("compName", "==", user.displayName));
-            onSnapshot(qa, (snapshot) => {
+            await getDocs(qa).then((snapshot) => {
                 snapshot.forEach((item) => {
                     const docDat = item.data();
                     const updatedData = { ...docDat, requestCount: reqCount.value };
@@ -98,7 +100,6 @@ export default {
                 });
             });
         }
-
 
         const closeDialog = inject('dialogRef', ref(''));
         // Seçilen proje tekrar filtrelenecek!

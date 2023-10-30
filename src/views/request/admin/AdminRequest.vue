@@ -17,11 +17,13 @@
       <template #header>
         <div style="display: flex; justify-content: end;">
           <TButton icon="pi pi-refresh" rounded raised @click="refreshData"
-            style="color:white; background-color: turquoise; border: 1px solid turquoise; margin-right: 10px;" />
+            style="color:white; background-color: turquoise; border: 1px solid turquoise; margin-right: 10px;"
+            v-tooltip.bottom="'Yenile'" />
 
           <download-excel :data="requestList">
             <TButton icon="pi pi-download" rounded raised
-              style="color:white; background-color: turquoise; border: 1px solid turquoise;" />
+              style="color:white; background-color: turquoise; border: 1px solid turquoise;"
+              v-tooltip.bottom="'\Excel\'e aktar'" />
           </download-excel>
         </div>
       </template>
@@ -138,18 +140,14 @@ export default {
         });
       });
 
+      console.log(reqList.value);
       const filteredReq = reqList.value.filter((item) => {
         return item.state === false;
       });
       reqCount.value = filteredReq.length;
-      if (reqCount.value > 0) {
-        reqCount.value;
-      } else {
-        reqCount.value = 0;
-      }
-
-      const qa  =  query(collection(firestore, "customers"), where("compName", "==", selectedRequest.value.company));
-       onSnapshot(qa, (snapshot) => {
+      console.log(reqCount.value)
+      const qa = query(collection(firestore, "customers"), where("compName", "==", selectedRequest.value.company));
+      await getDocs(qa).then((snapshot) => {
         snapshot.forEach((item) => {
           const docDat = item.data();
           const updatedData = { ...docDat, requestCount: reqCount.value };
@@ -157,8 +155,6 @@ export default {
         });
       });
     }
-
-
 
     // Context menu elementine tiklandigi durum
     const handleMenuItem = (send) => {
@@ -179,6 +175,7 @@ export default {
         requestStateCount();
         getRequestData();
         toastSuccess("Talep durumu alındı");
+        // send = '';
       }
     }
 

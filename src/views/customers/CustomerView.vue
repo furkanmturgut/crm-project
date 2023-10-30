@@ -22,11 +22,11 @@
         <template #header>
           <div style="display: flex; justify-content: end;">
             <TButton icon="pi pi-refresh" rounded raised @click="refreshData"
-              style="color:white; background-color: turquoise; border: 1px solid turquoise; margin-right: 10px;" />
+              style="color:white; background-color: turquoise; border: 1px solid turquoise; margin-right: 10px;" v-tooltip.bottom="'Yenile'" />
 
             <download-excel :data="customerList">
               <TButton icon="pi pi-download" rounded raised
-                style="color:white; background-color: turquoise; border: 1px solid turquoise;" />
+                style="color:white; background-color: turquoise; border: 1px solid turquoise;" v-tooltip.bottom="'\Excel\'e aktar'" />
             </download-excel>
 
           </div>
@@ -38,8 +38,8 @@
         <TColumn field="compAddress" header="Adres"></TColumn>
         <TColumn field="requestCount" sortable header="Çözülmemiş Talep Sayısı">
           <template #body="{ data }">
-            <div :style="{ color: data.requestCount === 0 ? 'springgreen' : data.requestCount > 3 ? 'red' : 'gold' }">
-              <label style="display: flex; justify-content: center; font-weight: bold;">{{ data.requestCount }}</label>
+            <div :style="{ backgroundColor: data.requestCount === 0 ? 'springgreen' : data.requestCount >= 3 ? 'red' : 'gold' }">
+              <label style="display: flex; justify-content: center; font-weight: bold;" :style="{color:data.requestCount >= 3 ? 'white': 'black'}">{{ data.requestCount }}</label>
             </div>
           </template>
         </TColumn>

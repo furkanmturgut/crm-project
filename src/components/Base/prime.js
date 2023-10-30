@@ -1,6 +1,7 @@
 import PrimeVue from "primevue/config";
 import "primeicons/primeicons.css";
 import ConfirmationService from "primevue/confirmationservice";
+import Tooltip from 'primevue/tooltip';
 
 import "primevue/resources/themes/lara-light-indigo/theme.css";
 import InputText from "primevue/inputtext";
@@ -31,6 +32,8 @@ export const prime = (app) => {
   const toastService = app.use(ToastService);
   const confirmationService = app.use(ConfirmationService);
   const dialogService = app.use(DialogService);
+
+  app.directive('tooltip', Tooltip);
 
   app.component("TInputText", InputText);
   app.component("TButton", Button);
