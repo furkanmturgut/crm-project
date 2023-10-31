@@ -2,57 +2,46 @@
     <div class="request-area">
         <header-component :mainTitle="'Taleplerim'" :btnTitle="'Talep Oluştur'"
             @btnClick="addRequestBtn"></header-component>
-        <TDynamicDialog></TDynamicDialog>
-        
+            <add-request-popup :closeDialog="closeDialog"></add-request-popup>
         <br />
-        <TDataTable :value="projectList" showGridlines paginator :rows="7" tableStyle="width:100%;">
-            <TColumn field="project" header="Proje Adı" style="20%"></TColumn>
-            <TColumn field="company" header="Firma" style="20%"></TColumn>
-            <TColumn field="title" header="Talep Başlığı" style="20%"></TColumn>
-            <TColumn field="desc" header="Talep Açıklama" style="20%"></TColumn>
-            <TColumn field="state" header="Talep Durumu" style="20%">
-                <template #body="slotProps">
-                    <TTag :value=" slotProps.data.state ? 'Talep Alındı' : 'Talep Bekliyor ' " :severity="getSeverity(slotProps.data)" />
+        <div class="component-area-project">
+            <PVDataTable :dataList="projectList" :visibleState="false">
+                <template #columnSlot>
+                    <TColumn field="project" header="Proje Adı"></TColumn>
+                    <TColumn field="company" header="Firma"></TColumn>
+                    <TColumn field="title" header="Talep Başlığı"></TColumn>
+                    <TColumn field="desc" header="Talep Açıklama"></TColumn>
+                    <TColumn field="state" header="Talep Durumu">
+                        <template #body="slotProps">
+                            <TTag :value="slotProps.data.state ? 'Talep Alındı' : 'Talep Bekliyor '"
+                                :severity="getSeverity(slotProps.data)" />
+                        </template>
+                    </TColumn>
                 </template>
-            </TColumn>
-        </TDataTable>
+            </PVDataTable>
+        </div>
     </div>
 </template>
 
 <script>
 import HeaderComponent from "@/components/HeaderComponent.vue";
-import { defineAsyncComponent, onMounted, ref, provide } from 'vue';
-import { useDialog } from "primevue/usedialog";
+import PVDataTable from "@/components/PVDataTable.vue";
+import { onMounted, ref } from 'vue';
 import { getFirestore, query, collection, where, getDocs } from "firebase/firestore";
 import { app } from '@/firebase/config';
 import { getAuth } from "firebase/auth";
+import AddRequestPopup from '@/views/request/AddRequestPopup.vue';
 export default {
     name: "CreateRequest",
     components: {
-        HeaderComponent
+        HeaderComponent, PVDataTable,AddRequestPopup
     },
     setup() {
-        const dialog = useDialog();
-        const AddRequest = defineAsyncComponent(() => import('@/views/request/AddRequestPopup.vue'));
         const auth = getAuth(app);
         const user = auth.currentUser;
         const firestore = getFirestore(app);
         const projectList = ref([]);
-        const addRequest = () => {
-            dialog.open(AddRequest, {
-                props: {
-                    header: 'Talep Oluştur',
-                    style: {
-                        width: '450px'
-                    },
-                    modal: true
-                }
-            });
-        }
-
-        // BU PROVIDE ILE BUTUN DIALOGLARI ACIP KAPATIYORUZ //
-        provide("dialogRef",dialog);
-
+        const isDialog = ref(false);
         onMounted(async () => {
             if (user.displayName != null) {
                 const q = query(collection(firestore, "requests"), where("company", "==", user.displayName));
@@ -75,11 +64,15 @@ export default {
         }
 
         const addRequestBtn = () => {
-            addRequest();
+            isDialog.value = true;
+        }
+
+        const closeDialog = () => {
+            isDialog.value = false;
         }
 
 
-        return { addRequestBtn, addRequest, projectList,getSeverity }
+        return { addRequestBtn, projectList, getSeverity,closeDialog,isDialog }
     }
 }
 

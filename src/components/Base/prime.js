@@ -27,6 +27,7 @@ import Tag from 'primevue/tag';
 import ContextMenu from 'primevue/contextmenu';
 import Dropdown from 'primevue/dropdown';
 import Menu from 'primevue/menu';
+import Dialog from 'primevue/dialog';
 
 
 export const prime = (app) => {
@@ -58,6 +59,7 @@ export const prime = (app) => {
   app.component("TContextMenu",ContextMenu);
   app.component("TDropdown",Dropdown);
   app.component("TMenu" ,Menu);
+  app.component("TDialog", Dialog);
 
   app.config.globalProperties.$toast =
     toastService.config.globalProperties.$toast;

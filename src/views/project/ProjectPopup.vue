@@ -1,79 +1,92 @@
 <template>
-    <div class="add-area">
-        <form @submit.prevent="saveProjectForm">
-            <!-- Project Name -->
-            <label>Proje Adı</label>
-            <TInputText placeholder="Proje Adı Giriniz" v-model="projectName" @input="formValidation(0)"></TInputText>
-            <small style="color:red; font-weight: bold;" v-if="errorState.name">{{ errorMsg.name }}</small>
+    <PVDialog :closeDialog="closeDialog" :header="'Proje Ekle'">
+        <template #dialogForm>
+            <form @submit.prevent="saveProjectForm">
+                <!-- Project Name -->
+                <label>Proje Adı</label>
+                <TInputText placeholder="Proje Adı Giriniz" v-model="projectName" @input="formValidation(0)"></TInputText>
+                <small style="color:red; font-weight: bold;" v-if="errorState.name">{{ errorMsg.name }}</small>
 
-            <!-- Project Company -->
-            <label>Proje Teslim Edilecek Firma</label>
-            <TDropdown v-model="searchCompany" :options="customerList" optionLabel="compName" placeholder="Firmayı Seçin"
-                showClear></TDropdown>
-            <small style="color:red; font-weight: bold;" v-if="errorState.company">{{ errorMsg.company }}</small>
+                <!-- Project Company -->
+                <label>Proje Teslim Edilecek Firma</label>
+                <TDropdown v-model="searchCompany" :options="customerList" optionLabel="compName"
+                    placeholder="Firmayı Seçin" showClear></TDropdown>
+                <small style="color:red; font-weight: bold;" v-if="errorState.company">{{ errorMsg.company }}</small>
 
-            <!-- Project Price -->
-            <label>Proje Fiyat</label>
-            <TInputText :class="[errorState.currency ? 'p-invalid' : '']" placeholder="Proje Fiyatı TL"
-                v-model="projectPrice" type="number" @input="formValidation(1)"></TInputText>
-            <span style="color:red; font-weight: bold;" v-if="errorState.currency">{{ errorMsg.currency }}</span>
-            <div style="display: flex; flex-direction: column;"
-                v-if="projectPrice != '' && projectPrice.trim().length >= 0">
-                <small>Güncel Kur ile USD Fiyatı : <small style="font-weight: bold;"> {{
-                    tryToUsd.toString().slice(0, 8) }}</small> </small>
-                <small>Güncel Kur ile EURO Fiyatı : <small style="font-weight: bold;"> {{
-                    tryToEuro.toString().slice(0, 8) }}</small> </small>
-            </div>
+                <!-- Project Price -->
+                <label>Proje Fiyat</label>
+                <TInputText :class="[errorState.currency ? 'p-invalid' : '']" placeholder="Proje Fiyatı TL"
+                    v-model="projectPrice" type="number" @input="formValidation(1)"></TInputText>
+                <span style="color:red; font-weight: bold;" v-if="errorState.currency">{{ errorMsg.currency }}</span>
+                <div style="display: flex; flex-direction: column;"
+                    v-if="projectPrice != '' && projectPrice.trim().length >= 0">
+                    <small>Güncel Kur ile USD Fiyatı : <small style="font-weight: bold;"> {{
+                        tryToUsd.toString().slice(0, 8) }}</small> </small>
+                    <small>Güncel Kur ile EURO Fiyatı : <small style="font-weight: bold;"> {{
+                        tryToEuro.toString().slice(0, 8) }}</small> </small>
+                </div>
 
-            <!-- Project Detail -->
-            <label>Proje Açıklama</label>
-            <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="projectDetail"
-                @input="formValidation(2)"></TextArea>
-            <div style="width: 100%; margin-top:10px; display: flex; " v-if="detailLength <= 60">
-                <TKnob style="margin-right: auto;" :strokeWidth="5" v-model="detailLength" :max="60" :min="0" :size="50"
-                    valueColor="blue" textColor="black"></TKnob>
-                <small style="color:red; font-weight: bold; align-items: center; justify-content: center; margin-top: 10px;"
-                    v-if="errorState.detail">{{ errorMsg.detail }}</small>
-            </div>
+                <!-- Project Detail -->
+                <label>Proje Açıklama</label>
+                <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="projectDetail"
+                    @input="formValidation(2)"></TextArea>
+                <div style="width: 100%; margin-top:10px; display: flex; " v-if="detailLength <= 60">
+                    <TKnob style="margin-right: auto;" :strokeWidth="5" v-model="detailLength" :max="60" :min="0" :size="50"
+                        valueColor="blue" textColor="black"></TKnob>
+                    <small
+                        style="color:red; font-weight: bold; align-items: center; justify-content: center; margin-top: 10px;"
+                        v-if="errorState.detail">{{ errorMsg.detail }}</small>
+                </div>
 
-            <!-- Project Type -->
-            <label>Proje Türü</label>
-            <div class="radio-area">
-                <TRadioButton v-model="selectProject" value="Scada Web" name="project"></TRadioButton>
-                <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Scada Web</label>
+                <!-- Project Type -->
+                <label>Proje Türü</label>
+                <div class="radio-area">
+                    <TRadioButton v-model="selectProject" value="Scada Web" name="project"></TRadioButton>
+                    <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Scada Web</label>
 
-                <TRadioButton v-model="selectProject" value="Masaüstü Yazılım" name="project"></TRadioButton>
-                <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Masaüstü Yazılım</label>
+                    <TRadioButton v-model="selectProject" value="Masaüstü Yazılım" name="project"></TRadioButton>
+                    <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Masaüstü Yazılım</label>
 
-                <TRadioButton v-model="selectProject" value="Mobil Uygulamalar" name="project"></TRadioButton>
-                <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Mobil Uygulamalar</label>
+                    <TRadioButton v-model="selectProject" value="Mobil Uygulamalar" name="project"></TRadioButton>
+                    <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Mobil Uygulamalar</label>
 
-                <TRadioButton v-model="selectProject" value="Fullstack Uygulama Geliştirme" name="project"></TRadioButton>
-                <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Fullstack Uygulama Geliştirme</label>
-            </div>
-            <small
-                style="color:red; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-weight: bold; "
-                v-if="errorState.projectType">{{ errorMsg.projectType }}</small>
-            <TButton type="submit" label="KAYDET" style="background-color: turquoise; border: 1px solid turquoise;">
-            </TButton>
+                    <TRadioButton v-model="selectProject" value="Fullstack Uygulama Geliştirme" name="project">
+                    </TRadioButton>
+                    <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Fullstack Uygulama
+                        Geliştirme</label>
+                </div>
+                <small
+                    style="color:red; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-weight: bold; "
+                    v-if="errorState.projectType">{{ errorMsg.projectType }}</small>
+                <TButton type="submit" label="KAYDET" style="background-color: turquoise; border: 1px solid turquoise;">
+                </TButton>
 
-            <small
-                style="color:red; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-weight: bold; margin-top: 10px"
-                v-if="errorState.all">{{ errorMsg.all }}</small>
-            <TToast></TToast>
-        </form>
-    </div>
+                <small
+                    style="color:red; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-weight: bold; margin-top: 10px"
+                    v-if="errorState.all">{{ errorMsg.all }}</small>
+                <TToast></TToast>
+            </form>
+        </template>
+    </PVDialog>
 </template>
 
 <script>
 import axios from 'axios';
-import { computed, ref, inject } from 'vue';
+import { computed, ref } from 'vue';
 import saveProject from '@/firebase/saveProject.js';
 import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
+import PVDialog from '@/components/PVDialog.vue';
 import { toastSuccess } from '@/components/Base/toast';
 export default {
     name: "ProjectPopup",
+    components: { PVDialog },
+    props: {
+        closeDialog: {
+            type: Function,
+            required: true
+        }
+    },
     setup() {
         const selectProject = ref(null);
         const searchCompany = ref(null);
@@ -86,7 +99,6 @@ export default {
         const projectDetail = ref('');
         const errorState = ref({ currency: false, name: false, detail: false, projectType: false, company: false, all: false });
         const errorMsg = ref({ currency: null, name: null, detail: null, projectType: null, company: null, all: false });
-        const closeDialog = inject("dialogRef", ref(''));
         // AutoComplete islemi
         const getUserFunc = (async () => {
             const q = query(collection(firestore, "customers"));
@@ -159,7 +171,7 @@ export default {
 
                     if (searchCompany.value != null) {
                         errorState.value.company = false;
-                    
+
                         const data = {
                             pName: projectName.value,
                             pPrice: projectPrice.value,
@@ -172,7 +184,7 @@ export default {
                         toastSuccess("Proje Başarıyla Eklendi.");
 
                         setTimeout(() => {
-                            closeDialog.value.close();
+                            //close dialog
                         }, 1000);
                     } else {
                         errorState.value.company = true;
@@ -196,11 +208,6 @@ export default {
 </script>
 
 <style scoped>
-.add-area {
-    display: flex;
-    flex-direction: column;
-}
-
 form {
     display: flex;
     flex-direction: column;

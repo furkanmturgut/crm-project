@@ -1,42 +1,54 @@
 <template>
-    <form @submit.prevent="sendToOffer">
-        <div class="offer-area">
-            <label>Mail atılacak firmayı arayın</label>
-            <TAutoComplete inputStyle="width:100%" v-model="searchCompany" @change="selectCompany" :suggestions="items"
-                optionLabel="name" @complete="search"></TAutoComplete>
+    <PVDialog :header="'Yeni Teklif Oluştur'" :closeDialog="closeDialog">
+        <template #dialogForm>
+            <form @submit.prevent="sendToOffer">
+                <div class="offer-area">
+                    <label>Mail atılacak firmayı arayın</label>
+                    <TAutoComplete inputStyle="width:100%" v-model="searchCompany" @change="selectCompany"
+                        :suggestions="items" optionLabel="name" @complete="search"></TAutoComplete>
 
-            <label>Gönderilecek Email</label>
-            <TInputText placeholder="Email" v-model="sendMail"></TInputText>
+                    <label>Gönderilecek Email</label>
+                    <TInputText placeholder="Email" v-model="sendMail"></TInputText>
 
-            <label>Konu Başlığı</label>
-            <TInputText placeholder="Başlık" v-model="sendTitle"></TInputText>
+                    <label>Konu Başlığı</label>
+                    <TInputText placeholder="Başlık" v-model="sendTitle"></TInputText>
 
-            <label>Konu İçeriği</label>
-            <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="sendContent"></TextArea>
+                    <label>Konu İçeriği</label>
+                    <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="sendContent"></TextArea>
 
-            <label>PDF Dosyası</label>
-            <TFileUpload mode="basic" chooseLabel="Yükle" accept="application/pdf" @upload="pdfUpload"></TFileUpload>
+                    <label>PDF Dosyası</label>
+                    <TFileUpload mode="basic" chooseLabel="Yükle" accept="application/pdf" @upload="pdfUpload">
+                    </TFileUpload>
 
-            <TButton class="btn-style" type="submit" label="GÖNDER"></TButton>
+                    <TButton class="btn-style" type="submit" label="GÖNDER"></TButton>
 
-            <TToast></TToast>
-        </div>
-    </form>
+                    <TToast></TToast>
+                </div>
+            </form>
+        </template>
+    </PVDialog>
 </template>
 
 <script>
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import { serverTimestamp } from 'firebase/firestore';
 import addOfferMail from '@/firebase/addOfferMail';
 import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
-import {toastError, toastSuccess} from '@/components/Base/toast';
+import { toastError, toastSuccess } from '@/components/Base/toast';
+import PVDialog from '@/components/PVDialog.vue';
 export default {
+    components: { PVDialog },
     name: "NewOfferPopup",
+    props:{
+        closeDialog:{
+            type:Function,
+            required:true
+        }
+    },
     setup() {
         const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
         const sendMail = ref(null);
-        const closeDialog = inject("dialogRef", ref(''));
         const sendTitle = ref(null);
         const sendContent = ref(null);
         const firestore = getFirestore(app);
@@ -90,11 +102,11 @@ export default {
                 toastSuccess("Mail başarıyla yollandı")
 
                 setTimeout(() => {
-                    closeDialog.value.close();
+                    //close dialog
                 }, 1000);
 
-            }else {
-              toastError("Mail gönderilemedi işlemleri kontrol edin");
+            } else {
+                toastError("Mail gönderilemedi işlemleri kontrol edin");
             }
         }
 

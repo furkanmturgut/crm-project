@@ -1,49 +1,55 @@
 <template>
   <div class="project-list">
-      <header-component :mainTitle="'Projeler & Ürünler'" :btnTitle="'Proje Ekle'" @btnClick="addProject" :isUser="isUser"></header-component>
-      <TDynamicDialog></TDynamicDialog>
-      <span style="font-weight: bold; margin:20px 0;  font-size: 22px;">Tüm Projeler</span>
-      <div class="customer-btn-area" v-if="projectList.length !==0">
-        <project-component :projectList="projectList" :isUser="isUser" :compName="compName"></project-component>
-      </div>
+    <header-component :mainTitle="'Projeler & Ürünler'" :btnTitle="'Proje Ekle'" @btnClick="addProject"
+      :isUser="isUser"></header-component>
+    <project-popup :closeDialog="closeDialog" v-if="isDialog"></project-popup>
+    <span style="font-weight: bold; margin:20px 0;  font-size: 22px;">Tüm Projeler</span>
+    <div class="component-area-project" v-if="projectList.length !== 0">
 
+      <PVDataTable :dataList="projectList" :visibleState="true" @refreshData="refreshData" :excelName="'projectList'">
+
+        <template #columnSlot>
+          <TColumn field="pName" sortable header="Proje Adı"></TColumn>
+          <TColumn v-if="!isUser" field="pCompany" header="Proje Firma"></TColumn>
+          <TColumn field="pPrice" sortable header="Proje Tutarı"></TColumn>
+          <TColumn field="pType" header="Proje Tipi"></TColumn>
+          <TColumn field="pDetail" header="Proje Açıklama" style="max-width: 250px;"></TColumn>
+        </template>
+
+      </PVDataTable>
     </div>
+  </div>
 </template>
 
 <script>
-import { defineAsyncComponent, onMounted, ref } from 'vue';
-import { useDialog } from 'primevue/usedialog';
+import { onMounted, ref } from 'vue';
 import { getFirestore, query, collection, getDocs } from 'firebase/firestore';
-import ProjectComponent from '@/components/ProjectComponent.vue';
 import HeaderComponent from '@/components/HeaderComponent.vue';
+import PVDataTable from '@/components/PVDataTable.vue';
+import ProjectPopup from './ProjectPopup.vue';
 import { app } from '@/firebase/config';
 import { getAuth } from 'firebase/auth';
 
 export default {
   name: 'ProjectView',
-  components: { ProjectComponent,HeaderComponent },
+  components: { PVDataTable, HeaderComponent,ProjectPopup },
   setup() {
-    const dialog = useDialog();
     const projectList = ref([]);
     const firestore = getFirestore(app);
     const auth = getAuth(app);
     const user = auth.currentUser;
     const compName = ref(null);
     const isUser = ref(false);
-    const ProjectPopup = defineAsyncComponent(() => import("@/views/project/ProjectPopup.vue"))
+    const isDialog = ref(false);
     const addProject = () => {
-      dialog.open(ProjectPopup, {
-        props: {
-          header: "Proje Ekle",
-          style: {
-            width: '450px'
-          },
-          modal: true
-        }
-      })
+      isDialog.value = true;
     };
 
-    onMounted(async () => {
+    const closeDialog = () => {
+      isDialog.value = false;
+    }
+
+    const getData = async () => {
       if (user !== null) {
         compName.value = user.displayName;
         if (user.displayName !== null) {
@@ -56,10 +62,26 @@ export default {
         snapshot.forEach((item) => {
           projectList.value.push(item.data());
         });
-      })
-    })
+      });
+      if (compName.value) {
+        return projectList.value.filter((item) => {
+          return item.pCompany === compName.value;
+        });
+      } else {
+        return projectList.value;
+      }
+    }
 
-    return { addProject, projectList, compName, isUser }
+    onMounted(async () => {
+      getData();
+    });
+
+    const refreshData = () => {
+      projectList.value = [];
+      getData();
+    }
+
+    return { addProject, compName, isUser, projectList, refreshData, closeDialog, isDialog }
 
   }
 
@@ -74,35 +96,5 @@ export default {
   justify-content: center;
   flex-direction: column;
   align-items: center;
-}
-
-.customer-btn-area {
-  width: 90%;
-  height: max-content;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-}
-
-.btn-name {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  text-align: center;
-
-}
-
-.add-customer {
-  width: 26%;
-  height: 64px;
-  background-color: turquoise;
-  margin: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
 }
 </style>

@@ -1,12 +1,11 @@
 <template>
   <div class="app-container">
-    <div v-if="isAdmin">
+    <div v-if="isLogged && stateNavbar" >
       <menu-component :is-user="isUser"></menu-component>
     </div>
     <div class="componentArea">
-      <nav-bar :is-user="isAdmin"></nav-bar>
+      <nav-bar :is-login="isLogged" @closeMenu="closeSideMenu"></nav-bar>
       <router-view></router-view>
-
     </div>
   </div>
 
@@ -22,14 +21,14 @@ import NavBar from './components/NavBar.vue';
 export default {
   components: { MenuComponent,NavBar },
   setup() {
-    const isAdmin = ref(false);
+    const isLogged = ref(false);
     const isUser = ref(false);
     const auth = getAuth(app);
- 
+    const stateNavbar = ref(true);
     onMounted(() => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          isAdmin.value = true;
+          isLogged.value = true;
 
           if (user.displayName !== null) {
             isUser.value = true;
@@ -38,7 +37,11 @@ export default {
       });
     });
 
-    return { isAdmin, isUser }
+    const closeSideMenu = (state) => {
+      stateNavbar.value = state.value;
+    }
+
+    return { isLogged, isUser, closeSideMenu, stateNavbar }
   }
 }
 </script>
@@ -49,6 +52,7 @@ export default {
 * {
   margin: 0;
   font-family: 'Cairo', sans-serif;
+  box-sizing: border-box;
 }
 
 .app-container {
@@ -63,4 +67,21 @@ export default {
 .error-class {
   color: red;
   font-weight: bold;
-}</style>
+}
+
+.component-area-project {
+  width: 100%;
+  height: max-content;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+@media only screen and (max-width: 700px) {
+  .component-area-project {
+    width: 80%;
+    display: inline-block;
+}
+}
+
+</style>

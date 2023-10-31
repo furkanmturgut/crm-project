@@ -1,7 +1,7 @@
 <template>
-    <div class="navbar" v-if="isUser">
+    <div class="navbar" id="navbar" v-if="isLogin">
         <div style="display: flex; align-items: center; color: white; margin-left: 10px;">
-            <i class="pi pi-align-justify"></i>
+            <i class="pi pi-align-justify" style="cursor: pointer;" @click="openSideMenu"></i>
         </div>
         <div
             style="display: flex;  align-items: center; justify-content: flex-end; height: 100%; width: max-content; margin-left: auto;">
@@ -45,19 +45,20 @@ import { app } from '@/firebase/config';
 import { getFirestore, query, collection, where, onSnapshot } from 'firebase/firestore';
 export default {
     props: {
-        isUser: {
+        isLogin: {
             type: Boolean,
             required: true,
             default: true
         }
     },
-    setup() {
+    setup(props, { emit }) {
         const router = useRouter();
         const op = ref();
         const opNot = ref();
         const auth = getAuth(app);
         const firestore = getFirestore(app);
         const confirm = useConfirm();
+        const sideMenu = ref(true);
         const data = ref([]);
         const notificationItem = ref([
             { icon: 'pi pi-info-circle' },
@@ -68,6 +69,11 @@ export default {
             { separator: true },
             { label: 'Çıkış Yap', icon: 'pi pi-power-off', command: () => confirmDialog() }
         ]);
+
+        const openSideMenu = () => {
+            sideMenu.value = !sideMenu.value;
+            emit("closeMenu", sideMenu);
+        }
 
         onMounted(async () => {
             const q = query(collection(firestore, "requests"), where("state", "==", false));
@@ -106,7 +112,7 @@ export default {
             router.push({ name: "AdminRequest" })
         }
 
-        return { openMenu, profileItem, op, opNot, notificationLength, openNotification, notificationItem, clickNotification }
+        return { openMenu, profileItem, op, opNot, notificationLength, openNotification, notificationItem, clickNotification, openSideMenu }
     }
 }
 </script>
@@ -119,6 +125,8 @@ export default {
     display: flex;
 
 }
+
+
 
 .notificationSize {
     color: black;

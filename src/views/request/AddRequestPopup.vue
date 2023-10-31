@@ -1,32 +1,48 @@
 <template>
-    <form @submit.prevent="sendToRequest" style="display: flex; flex-direction: column;">
-        <label>Projeyi seçin</label>
-        <TDropdown v-model="searchProject" :options="projectList" optionLabel="pName" placeholder="Proje Seçin" showClear>
-        </TDropdown>
-        <label>Talep Başlığı</label>
-        <TInputText placeholder="Başlık" v-model="sendTitle" @input="formValidation(0)"></TInputText>
-        <small style="font-weight: bold; color:red;" v-if="errorState.title">{{ errorMsg.title }}</small>
+    <PVDialog :closeDialog="closeDialog" :header="'Talep Bildir'">
+        <template #dialogForm>
+            <form @submit.prevent="sendToRequest" style="display: flex; flex-direction: column;">
+                <label>Projeyi seçin</label>
+                <TDropdown v-model="searchProject" :options="projectList" optionLabel="pName" placeholder="Proje Seçin"
+                    showClear>
+                </TDropdown>
+                <label>Talep Başlığı</label>
+                <TInputText placeholder="Başlık" v-model="sendTitle" @input="formValidation(0)"></TInputText>
+                <small style="font-weight: bold; color:red;" v-if="errorState.title">{{ errorMsg.title }}</small>
 
-        <label>Talep İçeriği</label>
-        <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="sendContent"
-            @input="formValidation(1)"></TextArea>
-        <small style="font-weight: bold; color:red;" v-if="errorState.description">{{ errorMsg.description }}</small>
+                <label>Talep İçeriği</label>
+                <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="sendContent"
+                    @input="formValidation(1)"></TextArea>
+                <small style="font-weight: bold; color:red;" v-if="errorState.description">{{ errorMsg.description
+                }}</small>
 
-        <TButton style="margin-top:20px; background-color: turquoise;" type="submit" label="TALEBİ OLUŞTUR"></TButton>
-        <small style="font-weight: bold; color:red;" v-if="errorState.all">{{ errorMsg.all }}</small>
+                <TButton style="margin-top:20px; background-color: turquoise;" type="submit" label="TALEBİ OLUŞTUR">
+                </TButton>
+                <small style="font-weight: bold; color:red;" v-if="errorState.all">{{ errorMsg.all }}</small>
 
-        <TToast></TToast>
-    </form>
+                <TToast></TToast>
+            </form>
+        </template>
+    </PVDialog>
 </template>
 
 <script>
-import { onMounted, ref, inject } from 'vue';
+import { onMounted, ref } from 'vue';
 import { getFirestore, getDocs, where, query, collection, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { app } from '@/firebase/config';
 import addRequest from '@/firebase/addRequest';
 import { toastSuccess } from '@/components/Base/toast';
+import PVDialog from '@/components/PVDialog.vue';
 export default {
+    name: "AddRequestPopup",
+    components: { PVDialog },
+    props: {
+        closeDialog:{
+            type:Function,
+            required:true
+        }
+    },
     setup() {
         const searchProject = ref(null);
         const sendTitle = ref('');
@@ -101,7 +117,6 @@ export default {
             });
         }
 
-        const closeDialog = inject('dialogRef', ref(''));
         // Seçilen proje tekrar filtrelenecek!
         const sendToRequest = async () => {
             if (sendTitle.value.length >= 5 && sendContent.value.length >= 20) {
@@ -120,7 +135,7 @@ export default {
                     toastSuccess("Talep başarıyla oluşturuldu");
                     totalRequest();
                     setTimeout(() => {
-                        closeDialog.value.close();
+                        // close dialog
                     }, 1000);
                 } else {
                     errorState.value.all = true;

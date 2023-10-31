@@ -1,58 +1,74 @@
 <template>
-  <TDynamicDialog></TDynamicDialog>
-  <form @submit.prevent="sendRequest">
-    <div class="add-area">
-      <label>Talep Eden Firma</label>
-      <div class="request-div">
-        <span class="request-span">{{ data.company }}</span>
-      </div>
+  <PVDialog :header="'Talebi Yanıtla'" :closeDialog="closeDialog">
+    <template #dialogForm>
+      <form @submit.prevent="sendRequest">
+        <div class="add-area">
+          <label>Talep Eden Firma</label>
+          <div class="request-div">
+            {{ console.log(data) }}
+            <span class="request-span">{{ data.company }}</span>
+          </div>
 
-      <label>Talep Tarih</label>
-      <div class="request-div">
-        <span class="request-span">{{ dateFormat }}</span>
-      </div>
+          <label>Talep Tarih</label>
+          <div class="request-div">
+            <span class="request-span">{{ dateFormat }}</span>
+          </div>
 
-      <label>Talep Başlık</label>
-      <div class="request-div">
-        <span class="request-span">{{ data.title }}</span>
-      </div>
+          <label>Talep Başlık</label>
+          <div class="request-div">
+            <span class="request-span">{{ data.title }}</span>
+          </div>
 
-      <label>Talep Açıklama</label>
-      <div class="request-div" style="height: max-content;">
-        <span class="request-span">{{ data.desc }}</span>
-      </div>
-      
-      <label>Talep Durumu </label>
-      <TDropdown :options="requestState" placeholder="Talep Bekliyor" optionLabel="name" v-model="selectedRequest"
-        style="width: 100%; height: 50px;">
-      </TDropdown>
+          <label>Talep Açıklama</label>
+          <div class="request-div" style="height: max-content;">
+            <span class="request-span">{{ data.desc }}</span>
+          </div>
 
-      <label>Talebe Yanıt Yaz</label>
-      <TextArea @input="formValidation(0)" v-model="sendRequestDesc" autoResize rows="5" cols="30"></TextArea>
-      <small style="color: red; font-weight: bold;" v-if="errorState.reqDesc">{{ errorMsg.reqDesc }}</small>
+          <label>Talep Durumu </label>
+          <TDropdown :options="requestState" placeholder="Talep Bekliyor" optionLabel="name" v-model="selectedRequest"
+            style="width: 100%; height: 50px;">
+          </TDropdown>
 
-      <TButton label="YANITI GÖNDER"
-        style="background-color: turquoise; color: white; margin-top: 20px; border: 1px solid turquoise;" type="submit">
-      </TButton>
+          <label>Talebe Yanıt Yaz</label>
+          <TextArea @input="formValidation(0)" v-model="sendRequestDesc" autoResize rows="5" cols="30"></TextArea>
+          <small style="color: red; font-weight: bold;" v-if="errorState.reqDesc">{{ errorMsg.reqDesc }}</small>
 
-    </div>
-  </form>
+          <TButton label="YANITI GÖNDER"
+            style="background-color: turquoise; color: white; margin-top: 20px; border: 1px solid turquoise;"
+            type="submit">
+          </TButton>
+
+        </div>
+      </form>
+    </template>
+  </PVDialog>
 </template>
 
 <script>
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import addSendRequest from '@/firebase/addSendRequest';
 import { toastError, toastSuccess } from '@/components/Base/toast';
 import { getFirestore, where, collection, query, onSnapshot, updateDoc } from 'firebase/firestore';
 import { app } from '@/firebase/config';
+import PVDialog from '@/components/PVDialog.vue';
 export default {
   name: "AdminRequestPopup",
-  setup() {
+  components:{PVDialog},
+  props:{
+      closeDialog:{
+        type:Function,
+        required:true
+      },
+      data:{
+        type:Object,
+        required:true
+      }
+  },
+  setup(props) {
     const selectedRequest = ref(false);
     const sendRequestDesc = ref('');
     const errorState = ref({ reqDesc: false });
     const errorMsg = ref({ reqDesc: null });
-    const data = inject("selectedRequest", ref(''));
     const firestore = getFirestore(app);
 
     // dropdown ici verileri doldurduk
@@ -62,7 +78,7 @@ export default {
     ]);
 
     // timestamp to date format
-    let date = new Date(data.value.date.toDate());
+    let date = new Date(props.data.date.toDate());
     let dateFormat = date.toLocaleString('tr-TR');
 
     const formValidation = (type) => {
@@ -85,7 +101,7 @@ export default {
         */
         if (!selectedRequest.value) {
           let sendData = {
-            id: data.value.id,
+            id: props.data.id,
             state: selectedRequest.value,
             desc: sendRequestDesc.value
           };
@@ -94,7 +110,7 @@ export default {
         } else if (selectedRequest.value) {
           updateRequest();
           let sendData = {
-            id: data.value.id,
+            id: props.data.id,
             state: selectedRequest.value.state,
             desc: sendRequestDesc.value
           };
@@ -108,7 +124,7 @@ export default {
     }
 
     const updateRequest = () => {
-      const q = query(collection(firestore, "requests"), where("id", "==", data.value.id));
+      const q = query(collection(firestore, "requests"), where("id", "==", props.data.id));
       onSnapshot(q, (snapshot) => {
         snapshot.forEach((item) => {
           const docDat = item.data();
@@ -118,7 +134,7 @@ export default {
       });
     }
 
-    return { requestState, selectedRequest, data, dateFormat, sendRequestDesc, formValidation, errorMsg, errorState, sendRequest }
+    return { requestState, selectedRequest, dateFormat,  sendRequestDesc, formValidation, errorMsg, errorState, sendRequest }
   }
 
 }

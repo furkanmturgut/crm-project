@@ -4,7 +4,6 @@ import CustomerView from "@/views/customers/CustomerView.vue";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import ProjectView from "@/views/project/ProjectView.vue";
 import OffersView from "@/views/offers/OffersView.vue";
-
 const routes = [
   {
     path: "/home",

@@ -1,73 +1,87 @@
 <template>
-    <form @submit.prevent="saveCustomer">
-        <div class="add-area">
-            <label for="compName">Firma Adı</label>
-            <TInputText id="compName" placeholder="Firma Adı" v-model="companyName" @input="formValidation(0)"></TInputText>
-            <small v-if="errorState.name">{{ errorMsg.name }}</small>
+    <PVDialog :header="'Müşteri Ekle'" :closeDialog="closeDialog">
+        <template #dialogForm>
+            <form @submit.prevent="saveCustomer">
+                <div class="add-area">
+                    <label for="compName">Firma Adı</label>
+                    <TInputText id="compName" placeholder="Firma Adı" v-model="companyName" @input="formValidation(0)">
+                    </TInputText>
+                    <small v-if="errorState.name">{{ errorMsg.name }}</small>
 
-            <label for="compPerson">Firma İletişim Yetkilisi</label>
-            <TInputText id="compPerson" placeholder="Firma İletişim Yetkilisi" v-model="companyPerson"
-                @input="formValidation(1)">
-            </TInputText>
-            <small v-if="errorState.person">{{ errorMsg.person }}</small>
+                    <label for="compPerson">Firma İletişim Yetkilisi</label>
+                    <TInputText id="compPerson" placeholder="Firma İletişim Yetkilisi" v-model="companyPerson"
+                        @input="formValidation(1)">
+                    </TInputText>
+                    <small v-if="errorState.person">{{ errorMsg.person }}</small>
 
-            <label for="compPhone">Firma İrtibat Numarası (+90)</label>
-            <TInputMaskView id="compPhone" v-model="companyPhone" date="phone" mask="(999) 999-9999"
-                placeholder="5XX XXX XXXX" @input="formValidation(2)">
-            </TInputMaskView>
-            <small v-if="errorState.phone">{{ errorMsg.phone }}</small>
+                    <label for="compPhone">Firma İrtibat Numarası (+90)</label>
+                    <TInputMaskView id="compPhone" v-model="companyPhone" date="phone" mask="(999) 999-9999"
+                        placeholder="5XX XXX XXXX" @input="formValidation(2)">
+                    </TInputMaskView>
+                    <small v-if="errorState.phone">{{ errorMsg.phone }}</small>
 
-            <label for="compMail">Firma Email</label>
-            <TInputText id="compMail" placeholder="Firma Mail Adres" v-model="companyMail" @input="formValidation(3)">
-            </TInputText>
-            <small v-if="errorState.mail">{{ errorMsg.mail }}</small>
+                    <label for="compMail">Firma Email</label>
+                    <TInputText id="compMail" placeholder="Firma Mail Adres" v-model="companyMail"
+                        @input="formValidation(3)">
+                    </TInputText>
+                    <small v-if="errorState.mail">{{ errorMsg.mail }}</small>
 
-            <label for="compPass">Firma Parola</label>
-            <TInputText id="compPass" placeholder="Firma Parolası" v-model="companyPass" @input="formValidation(5)">
-            </TInputText>
-            <small v-if="errorState.pass">{{ errorMsg.pass }}</small>
+                    <label for="compPass">Firma Parola</label>
+                    <TInputText id="compPass" placeholder="Firma Parolası" v-model="companyPass" @input="formValidation(5)">
+                    </TInputText>
+                    <small v-if="errorState.pass">{{ errorMsg.pass }}</small>
 
-            <label for="compAddress">Firma Adresi</label>
-            <TextArea id="compAddress" placeholder="Firma Adresi" autoResize rows="3" cols="10" v-model="companyAddress"
-                @input="formValidation(4)"></TextArea>
-            <small v-if="errorState.address">{{ errorMsg.address }}</small>
+                    <label for="compAddress">Firma Adresi</label>
+                    <TextArea id="compAddress" placeholder="Firma Adresi" autoResize rows="3" cols="10"
+                        v-model="companyAddress" @input="formValidation(4)"></TextArea>
+                    <small v-if="errorState.address">{{ errorMsg.address }}</small>
 
-            <label>Müşteri Türü</label>
-            <div class="radio-area">
-                <TRadioButton v-model="selectCustomerType" value="Eski Müşteri" name="customer"></TRadioButton>
-                <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Eski Müşteri</label>
+                    <label>Müşteri Türü</label>
+                    <div class="radio-area">
+                        <TRadioButton v-model="selectCustomerType" value="Eski Müşteri" name="customer"></TRadioButton>
+                        <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Eski Müşteri</label>
 
-                <TRadioButton v-model="selectCustomerType" value="Yeni Müşteri" name="customer"></TRadioButton>
-                <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Yeni Müşteri</label>
-
-
-                <TRadioButton v-model="selectCustomerType" value="Potansiyel Müşteri" name="customer"></TRadioButton>
-                <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Potansiyel Müşteri</label>
-            </div>
-
-            <div v-if="errorState.spinner" style="display:flex; justify-content:center; margin-top:18px;">
-                <TSpinner style="height: 50px;"></TSpinner>
-            </div>
-            <TButton v-show="!errorState.spinner" class="add-customer-btn" label="KAYDET" type="submit"></TButton>
-            <TToast></TToast>
-          <small style="display:flex; justify-content:center;" v-if="errorState.all">{{ errorMsg.all }}</small>
+                        <TRadioButton v-model="selectCustomerType" value="Yeni Müşteri" name="customer"></TRadioButton>
+                        <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Yeni Müşteri</label>
 
 
-        </div>
-    </form>
+                        <TRadioButton v-model="selectCustomerType" value="Potansiyel Müşteri" name="customer">
+                        </TRadioButton>
+                        <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Potansiyel Müşteri</label>
+                    </div>
+
+                    <div v-if="errorState.spinner" style="display:flex; justify-content:center; margin-top:18px;">
+                        <TSpinner style="height: 50px;"></TSpinner>
+                    </div>
+                    <TButton v-show="!errorState.spinner" class="add-customer-btn" label="KAYDET" type="submit"></TButton>
+                    <TToast></TToast>
+                    <small style="display:flex; justify-content:center;" v-if="errorState.all">{{ errorMsg.all }}</small>
+
+                </div>
+            </form>
+        </template>
+    </PVDialog>
 </template>
 
 <script>
-import { inject, ref } from 'vue';
+import { ref } from 'vue';
 import addCustomer from '@/firebase/addCustomer';
 import { serverTimestamp } from 'firebase/firestore';
 import createUser from '@/firebase/createUser.js';
 import { toastSuccess } from '@/components/Base/toast';
+import PVDialog from '@/components/PVDialog.vue';
 export default {
     name: "AddCustomerPopup",
+    components: { PVDialog },
+    props: {
+        closeDialog: {
+            type: Function,
+            required: true
+        },
+    },
     setup() {
-        const errorState = ref({ name: false, person: false, phone: false, mail: false, address: false, spinner: false, pass: false,all:false });
-        const errorMsg = ref({ name: null, person: null, phone: null, mail: null, address: null, pass: null ,all:false});
+        const errorState = ref({ name: false, person: false, phone: false, mail: false, address: false, spinner: false, pass: false, all: false });
+        const errorMsg = ref({ name: null, person: null, phone: null, mail: null, address: null, pass: null, all: false });
         const companyName = ref('');
         const companyPerson = ref(null);
         const companyPhone = ref(null);
@@ -78,8 +92,6 @@ export default {
         let fullNameRegex = /[A-Za-z]+\s[A-Za-z]+/i;
         const phoneRegex = /\(\d\d\d\)\s\d\d\d-\d\d\d\d/i;
         const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
-        const closeDialog = inject("dialogRef",ref(''));
-        console.log("Selected : ", selectCustomerType.value);
         const formValidation = (type) => {
             switch (type) {
                 case 0:
@@ -139,10 +151,10 @@ export default {
         const saveCustomer = async () => {
             if (fullNameRegex.test(companyPerson.value) &&
                 phoneRegex.test(companyPhone.value) && emailRegex.test(companyMail.value) && companyName.value.length >= 4 && companyAddress.value.length >= 10 && selectCustomerType.value != null) {
-              errorState.value.spinner = true;
+                errorState.value.spinner = true;
 
-              const customerData = {
-                    id:Date.now(),
+                const customerData = {
+                    id: Date.now(),
                     compName: companyName.value,
                     compPerson: companyPerson.value,
                     compPhone: companyPhone.value,
@@ -152,19 +164,19 @@ export default {
                     customerType: selectCustomerType.value,
                     requestCount: 0
                 };
-                createUser(companyMail.value, companyPass.value,companyName.value);
+                createUser(companyMail.value, companyPass.value, companyName.value);
 
 
                 await addCustomer(customerData);
                 toastSuccess("Müşteri başarıyla eklendi")
                 errorState.value.spinner = false;
                 setTimeout(() => {
-                    closeDialog.value.close();
+                    // close dialog and refresh
                 }, 1000);
 
-            }else {
-              errorState.value.all = true;
-              errorMsg.value.all = "Tüm alanları doldurunuz"
+            } else {
+                errorState.value.all = true;
+                errorMsg.value.all = "Tüm alanları doldurunuz"
             }
         }
 

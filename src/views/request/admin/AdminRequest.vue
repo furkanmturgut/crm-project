@@ -9,46 +9,49 @@
       </template>
     </TContextMenu>
 
-    <TDynamicDialog></TDynamicDialog>
-    <TDataTable @contextmenu="onCellRightClick" selectionMode="single" aria-haspopup="true"
-      v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList" paginator :rows="10"
-      tableStyle="min-width:100%;" filterDisplay="row" resizableColumns columnResizeMode="expand">
+    <admin-request-popup :closeDialog="closeDialog" :data="selectedRequest" v-if="isDialog"></admin-request-popup>
 
-      <template #header>
-        <div style="display: flex; justify-content: end;">
-          <TButton icon="pi pi-refresh" rounded raised @click="refreshData"
-            style="color:white; background-color: turquoise; border: 1px solid turquoise; margin-right: 10px;"
-            v-tooltip.bottom="'Yenile'" />
+    <div class="component-area-project">
+      <TDataTable @contextmenu="onCellRightClick" selectionMode="single" aria-haspopup="true"
+        v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList" paginator :rows="10"
+        tableStyle="min-width:100%;" filterDisplay="row" resizableColumns columnResizeMode="expand">
 
-          <download-excel :data="requestList">
-            <TButton icon="pi pi-download" rounded raised
-              style="color:white; background-color: turquoise; border: 1px solid turquoise;"
-              v-tooltip.bottom="'\Excel\'e aktar'" />
-          </download-excel>
-        </div>
-      </template>
+        <template #header>
+          <div style="display: flex; justify-content: end;">
+            <TButton icon="pi pi-refresh" rounded raised @click="refreshData"
+              style="color:white; background-color: turquoise; border: 1px solid turquoise; margin-right: 10px;"
+              v-tooltip.bottom="'Yenile'" />
 
-      <TColumn field="project" header="Proje Adı" exportHeader="Proje 1"></TColumn>
-      <TColumn field="company" header="Firma"></TColumn>
-      <TColumn field="title" header="Talep Başlığı"></TColumn>
-      <TColumn field="desc" header="Talep Açıklama"></TColumn>
-      <TColumn field="state" header="Talep Durumu" :showFilterMenu="false" style="min-width: 50px;">
-        <template #body="{ data }">
-          <TTag :value="data.state ? 'Talep Alındı' : 'Talep Bekliyor '" :severity="getSeverity(data.state)" />
+            <download-excel :data="requestList" :name="'adminRequest.xls'">
+              <TButton icon="pi pi-download" rounded raised
+                style="color:white; background-color: turquoise; border: 1px solid turquoise;"
+                v-tooltip.bottom="'\Excel\'e aktar'" />
+            </download-excel>
+          </div>
         </template>
 
-        <template #filter="{ filterModel, filterCallback }">
-          <TDropdown v-model="filterModel.value" @change="filterCallback()" :options="statuses" placeholder="Durum Seçin"
-            showClear class="dropdown-style">
-            <template #option="slotProps">
-              <TTag :value="slotProps.option ? 'Talep Alındı' : 'Talep Bekliyor'"
-                :severity="getSeverity(slotProps.option)" />
-            </template>
-          </TDropdown>
-        </template>
+        <TColumn field="project" header="Proje Adı"></TColumn>
+        <TColumn field="company" header="Firma"></TColumn>
+        <TColumn field="title" header="Talep Başlığı"></TColumn>
+        <TColumn field="desc" header="Talep Açıklama"></TColumn>
+        <TColumn field="state" header="Talep Durumu" :showFilterMenu="false" style="min-width: 50px;">
+          <template #body="{ data }">
+            <TTag :value="data.state ? 'Talep Alındı' : 'Talep Bekliyor '" :severity="getSeverity(data.state)" />
+          </template>
 
-      </TColumn>
-    </TDataTable>
+          <template #filter="{ filterModel, filterCallback }">
+            <TDropdown v-model="filterModel.value" @change="filterCallback()" :options="statuses"
+              placeholder="Durum Seçin" showClear class="dropdown-style">
+              <template #option="slotProps">
+                <TTag :value="slotProps.option ? 'Talep Alındı' : 'Talep Bekliyor'"
+                  :severity="getSeverity(slotProps.option)" />
+              </template>
+            </TDropdown>
+          </template>
+
+        </TColumn>
+      </TDataTable>
+    </div>
 
     <TToast></TToast>
   </div>
@@ -58,22 +61,21 @@
 import HeaderComponent from '@/components/HeaderComponent.vue';
 import { getFirestore, collection, query, updateDoc, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
 import { app } from '@/firebase/config';
-import { defineAsyncComponent, onMounted, ref, provide } from 'vue';
-import { useDialog } from 'primevue/usedialog';
+import { onMounted, ref } from 'vue';
 import { toastSuccess } from '@/components/Base/toast';
 import { FilterMatchMode } from 'primevue/api';
+import AdminRequestPopup from './AdminRequestPopup.vue';
 export default {
-  components: { HeaderComponent },
+  components: { HeaderComponent, AdminRequestPopup },
   name: "AdminRequest",
   setup() {
     const menu = ref();
     // hucrede secilen satir
     const selectedRequest = ref();
-    const dialog = useDialog();
+    const isDialog = ref(false);
     const reqList = ref([]);
     const filters = ref();
     const reqCount = ref(null);
-    const AdminReqPopup = defineAsyncComponent(() => import('@/views/request/admin/AdminRequestPopup.vue'));
     const items = ref([
       { label: "Talebi Yanıtla", icon: 'pi pi-send', command: () => handleMenuItem('send') },
       { separator: true },
@@ -97,8 +99,6 @@ export default {
       getRequestData();
     });
 
-    // Popup'a verimizi gönderdik
-    provide("selectedRequest", selectedRequest);
 
     const getRequestData = async () => {
       requestList.value = [];
@@ -159,15 +159,7 @@ export default {
     // Context menu elementine tiklandigi durum
     const handleMenuItem = (send) => {
       if (send === 'send') {
-        dialog.open(AdminReqPopup, {
-          props: {
-            header: 'Talebi Yanıtla',
-            style: {
-              width: '450px'
-            },
-            modal: true
-          }
-        });
+        isDialog.value = true;
       } else if (send === 'addRequest') {
         selectedUpdateRequest();
         // Burada veri listesi sifirlandi ve veriyi yeniden çektik
@@ -175,8 +167,11 @@ export default {
         requestStateCount();
         getRequestData();
         toastSuccess("Talep durumu alındı");
-        // send = '';
       }
+    }
+
+    const closeDialog = () => {
+      isDialog.value = false;
     }
 
     const onCellRightClick = (event) => {
@@ -191,7 +186,7 @@ export default {
       initFilters();
     }
 
-    return { requestList, getSeverity, menu, items, selectedRequest, onCellRightClick, handleMenuItem, filters, statuses, refreshData }
+    return { requestList, getSeverity, menu, items, selectedRequest, onCellRightClick, handleMenuItem, filters, statuses, refreshData, closeDialog, isDialog }
   }
 }
 </script>

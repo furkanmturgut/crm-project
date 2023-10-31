@@ -1,8 +1,7 @@
 <template>
     <div class="offer-area">
         <header-component :mainTitle="'Teklifler'" :btnTitle="'Teklif Gönder'" @btnClick="newOffer"></header-component>
-        <TDynamicDialog></TDynamicDialog>
-
+        <new-offer-popup :closeDialog="closeDialog" v-if="isDialog"></new-offer-popup>
         <span style="font-weight: bold; font-size: 22px; margin:20px 0;">Gönderilmiş Mailler</span>
         <TAccordion style="width: 60%; margin: 8px 0;" v-for="mail in mailList" :key="mail.mailDate">
             <TAccordionTab>
@@ -28,30 +27,24 @@
 </template>
 
 <script>
-import { useDialog } from 'primevue/usedialog';
-import { defineAsyncComponent, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { getFirestore, query, collection, getDocs,orderBy } from "firebase/firestore";
 import { app } from '@/firebase/config.js';
 import HeaderComponent from '@/components/HeaderComponent.vue';
+import NewOfferPopup from './NewOfferPopup.vue';
 export default {
     name: "OffersView",
-    components:{HeaderComponent},
+    components:{HeaderComponent,NewOfferPopup},
     setup() {
-        const dialog = useDialog();
         const mailList = ref([]);
         const firestore = getFirestore(app);
-
-        const NewOffer = defineAsyncComponent(() => import('@/views/offers/NewOfferPopup.vue'));
+        const isDialog = ref(false);
         const newOffer = () => {
-            dialog.open(NewOffer, {
-                props: {
-                    header: "Yeni Teklif Oluştur",
-                    style: {
-                        width: '450px'
-                    },
-                    modal: true
-                }
-            });
+            isDialog.value = true;
+        }
+
+        const closeDialog = () => {
+            isDialog.value = false;
         }
 
         onMounted(async () => {
@@ -63,7 +56,7 @@ export default {
             });
         })
 
-        return { newOffer,mailList }
+        return { newOffer,mailList,isDialog,closeDialog }
     }
 
 }

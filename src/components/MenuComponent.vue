@@ -1,9 +1,9 @@
 <template >
     <div class="container">
-        <div class="col1">
+        <div>
             <div class="menu">
                 <div style="display: flex; align-items: center; justify-content: center; ">
-                    <img alt="Turkuvaz" src="@/assets/logo.png" style="width:70px; height: 70px; margin: 20px  0;">
+                    <img alt="Turkuvaz" src="@/assets/favicon.png" style="width:50px; height: 50px; margin: 20px  0;">
                 </div>
                 <div>
                     <ul>
@@ -46,7 +46,7 @@ export default {
 
         ]);
         const itemsControl = ref([]);
-      
+
         if (props.isUser === false) {
             const a = menuItems.value.filter((item) => {
                 return item.isAdmins == true;
@@ -89,7 +89,7 @@ export default {
                 }
             }
         }
-   
+
         return { itemsControl, selectItem }
 
     }
@@ -102,12 +102,6 @@ export default {
     display: flex;
     justify-content: flex-start;
 }
-
-.col1 {
-    flex: 1;
-}
-
-
 
 .menu {
     background-color: turquoise;
@@ -148,5 +142,13 @@ a {
 li:hover {
     display: block;
     background-color: rgb(255, 255, 255, 0.8);
+}
+
+@media only screen and (max-width:600px) {
+    .menu {
+        background-color: turquoise;
+        height: 100vh;
+        width: 100px;
+    }
 }
 </style>

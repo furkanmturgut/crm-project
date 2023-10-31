@@ -85,17 +85,8 @@ export default {
     background-color: #1d9bf0;
 }
 
-@media (max-width:400px) {
-    .loginStyle {
-        width: 74%;
-    }
 
-    .loginBtn {
-        width: 74%;
-    }
-}
-
-@media (min-width:400px) and (max-width:800px) {
+@media only screen and (max-width:800px) {
     .loginStyle {
         width: 60%;
     }
