@@ -1,6 +1,6 @@
 <template>
   <div class="project-list">
-    <header-component :mainTitle="'Projeler & Ürünler'" :btnTitle="'Proje Ekle'" @btnClick="addProject"
+    <header-component :mainTitle="'Projeler & Ürünler'" :btnTitle="'Proje Ekle'" @btnClick="isDialog = true"
       :isUser="isUser"></header-component>
     <project-popup :closeDialog="closeDialog" v-if="isDialog"></project-popup>
     <span style="font-weight: bold; margin:20px 0;  font-size: 22px;">Tüm Projeler</span>
@@ -11,7 +11,7 @@
         <template #columnSlot>
           <TColumn field="pName" sortable header="Proje Adı"></TColumn>
           <TColumn v-if="!isUser" field="pCompany" header="Proje Firma"></TColumn>
-          <TColumn field="pPrice" sortable header="Proje Tutarı"></TColumn>
+          <TColumn field="pPrice" sortable header="Proje Tutarı (TL)"></TColumn>
           <TColumn field="pType" header="Proje Tipi"></TColumn>
           <TColumn field="pDetail" header="Proje Açıklama" style="max-width: 250px;"></TColumn>
         </template>
@@ -41,35 +41,36 @@ export default {
     const compName = ref(null);
     const isUser = ref(false);
     const isDialog = ref(false);
-    const addProject = () => {
-      isDialog.value = true;
-    };
-
-    const closeDialog = () => {
+    
+    const closeDialog = (onSuccess) => {
+      if(onSuccess === true){
+        projectList.value = [];
+        getData();
+        isDialog.value= false;
+      }
       isDialog.value = false;
     }
 
     const getData = async () => {
-      if (user !== null) {
-        compName.value = user.displayName;
-        if (user.displayName !== null) {
+    
+        if (user && user.displayName !== null) {
           isUser.value = true;
+          compName.value = user.displayName;
         }
-      }
-
+      
       const q = query(collection(firestore, "projects"));
       await getDocs(q).then((snapshot) => {
         snapshot.forEach((item) => {
           projectList.value.push(item.data());
         });
       });
-      if (compName.value) {
-        return projectList.value.filter((item) => {
-          return item.pCompany === compName.value;
-        });
-      } else {
-        return projectList.value;
-      }
+        if(compName.value) {
+          const filteredData = projectList.value.filter((item) => {
+            return item.pCompany == compName.value;
+          });
+          projectList.value = [];
+          projectList.value = filteredData;
+        }
     }
 
     onMounted(async () => {
@@ -81,7 +82,7 @@ export default {
       getData();
     }
 
-    return { addProject, compName, isUser, projectList, refreshData, closeDialog, isDialog }
+    return { compName, isUser, projectList, refreshData, closeDialog, isDialog }
 
   }
 

@@ -1,25 +1,32 @@
 <template>
-    <PVDialog :closeDialog="closeDialog" :header="'Talep Bildir'">
+    <PVDialog :closeDialog="closeDialog" :header="'Talep Bildir'" @onSubmit="sendToRequest">
         <template #dialogForm>
             <form @submit.prevent="sendToRequest" style="display: flex; flex-direction: column;">
-                <label>Projeyi seçin</label>
-                <TDropdown v-model="searchProject" :options="projectList" optionLabel="pName" placeholder="Proje Seçin"
-                    showClear>
-                </TDropdown>
-                <label>Talep Başlığı</label>
-                <TInputText placeholder="Başlık" v-model="sendTitle" @input="formValidation(0)"></TInputText>
-                <small style="font-weight: bold; color:red;" v-if="errorState.title">{{ errorMsg.title }}</small>
+                <div class="row-element">
+                    <div class="input-left-element">
+                        <label>Projeyi seçin</label>
+                        <TDropdown v-model="searchProject" :options="projectList" optionLabel="pName"
+                            placeholder="Proje Seçin" showClear>
+                        </TDropdown>
+                    </div>
+                    <div class="input-right-element">
+                        <label>Talep Başlığı</label>
+                        <TInputText placeholder="Başlık" v-model="sendTitle" @input="formValidation(0)"></TInputText>
+                        <small style="font-weight: bold; color:red;" v-if="errorState.title">{{ errorMsg.title }}</small>
+                    </div>
 
-                <label>Talep İçeriği</label>
-                <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="sendContent"
-                    @input="formValidation(1)"></TextArea>
-                <small style="font-weight: bold; color:red;" v-if="errorState.description">{{ errorMsg.description
-                }}</small>
+                </div>
 
-                <TButton style="margin-top:20px; background-color: turquoise;" type="submit" label="TALEBİ OLUŞTUR">
-                </TButton>
-                <small style="font-weight: bold; color:red;" v-if="errorState.all">{{ errorMsg.all }}</small>
-
+                <div class="row-element">
+                    <div class="input-left-element">
+                        <label>Talep İçeriği</label>
+                        <TextArea placeholder="Talep Açıklaması" autoResize rows="5" cols="30" v-model="sendContent"
+                            @input="formValidation(1)"></TextArea>
+                        <small style="font-weight: bold; color:red;" v-if="errorState.description">{{ errorMsg.description
+                        }}</small>
+                    </div>
+                </div>
+                <small style="font-weight: bold; color:red; display: flex; justify-content: center; margin-top: 10px;" v-if="errorState.all">{{ errorMsg.all }}</small>
                 <TToast></TToast>
             </form>
         </template>
@@ -38,12 +45,12 @@ export default {
     name: "AddRequestPopup",
     components: { PVDialog },
     props: {
-        closeDialog:{
-            type:Function,
-            required:true
+        closeDialog: {
+            type: Function,
+            required: true
         }
     },
-    setup() {
+    setup(props) {
         const searchProject = ref(null);
         const sendTitle = ref('');
         const sendContent = ref('');
@@ -136,6 +143,7 @@ export default {
                     totalRequest();
                     setTimeout(() => {
                         // close dialog
+                        props.closeDialog(true);
                     }, 1000);
                 } else {
                     errorState.value.all = true;
@@ -153,4 +161,10 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+label {
+    color: black;
+    font-weight: bold;
+    margin: 10px 0;
+}
+</style>

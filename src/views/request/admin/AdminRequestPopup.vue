@@ -1,42 +1,49 @@
 <template>
-  <PVDialog :header="'Talebi Yanıtla'" :closeDialog="closeDialog">
+  <PVDialog :header="'Talebi Yanıtla'" :closeDialog="closeDialog" :btnLabel="'Yanıtla'">
     <template #dialogForm>
       <form @submit.prevent="sendRequest">
         <div class="add-area">
-          <label>Talep Eden Firma</label>
-          <div class="request-div">
-            {{ console.log(data) }}
-            <span class="request-span">{{ data.company }}</span>
+          <div class="row-element">
+            <div class="input-left-element">
+              <label>Talep Eden Firma</label>
+              <span class="request-span">{{ data.company }}</span>
+
+            </div>
+            <div class="input-right-element">
+              <label>Talep Tarih</label>
+              <span class="request-span">{{ dateFormat }}</span>
+            </div>
           </div>
 
-          <label>Talep Tarih</label>
-          <div class="request-div">
-            <span class="request-span">{{ dateFormat }}</span>
+          <div class="row-element">
+            <div class="input-left-element">
+              <label>Talep Başlık</label>
+              <span class="request-span">{{ data.title }}</span>
+            </div>
+            <div class="input-right-element">
+              <label>Talep Açıklama</label>
+              <span class="request-span">{{ data.desc }}</span>
+            </div>
           </div>
 
-          <label>Talep Başlık</label>
-          <div class="request-div">
-            <span class="request-span">{{ data.title }}</span>
+          <div class="row-element">
+            <div class="input-left-element">
+              <label>Proje Adı</label>
+              <span class="request-span">{{ data.project }}</span>
+            </div>
+            <div class="input-right-element">
+              <label>Talep Durumu </label>
+              <TDropdown :options="requestState" placeholder="Talep Bekliyor" optionLabel="name" v-model="selectedRequest"
+                >
+              </TDropdown>
+            </div>
           </div>
 
-          <label>Talep Açıklama</label>
-          <div class="request-div" style="height: max-content;">
-            <span class="request-span">{{ data.desc }}</span>
-          </div>
 
-          <label>Talep Durumu </label>
-          <TDropdown :options="requestState" placeholder="Talep Bekliyor" optionLabel="name" v-model="selectedRequest"
-            style="width: 100%; height: 50px;">
-          </TDropdown>
 
-          <label>Talebe Yanıt Yaz</label>
+          <label style="margin: 10px 0;">Talebe Yanıt Yaz</label>
           <TextArea @input="formValidation(0)" v-model="sendRequestDesc" autoResize rows="5" cols="30"></TextArea>
           <small style="color: red; font-weight: bold;" v-if="errorState.reqDesc">{{ errorMsg.reqDesc }}</small>
-
-          <TButton label="YANITI GÖNDER"
-            style="background-color: turquoise; color: white; margin-top: 20px; border: 1px solid turquoise;"
-            type="submit">
-          </TButton>
 
         </div>
       </form>
@@ -53,16 +60,16 @@ import { app } from '@/firebase/config';
 import PVDialog from '@/components/PVDialog.vue';
 export default {
   name: "AdminRequestPopup",
-  components:{PVDialog},
-  props:{
-      closeDialog:{
-        type:Function,
-        required:true
-      },
-      data:{
-        type:Object,
-        required:true
-      }
+  components: { PVDialog },
+  props: {
+    closeDialog: {
+      type: Function,
+      required: true
+    },
+    data: {
+      type: Object,
+      required: true
+    }
   },
   setup(props) {
     const selectedRequest = ref(false);
@@ -134,7 +141,7 @@ export default {
       });
     }
 
-    return { requestState, selectedRequest, dateFormat,  sendRequestDesc, formValidation, errorMsg, errorState, sendRequest }
+    return { requestState, selectedRequest, dateFormat, sendRequestDesc, formValidation, errorMsg, errorState, sendRequest }
   }
 
 }
@@ -147,14 +154,12 @@ export default {
 }
 
 label {
-  margin: 10px 0;
   font-weight: bold;
 }
 
 .request-span {
   display: flex;
-  margin-top: 10px;
-  margin-left: 10px;
+  color: gray;
 }
 
 .request-div {

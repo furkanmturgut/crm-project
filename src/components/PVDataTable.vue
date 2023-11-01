@@ -1,24 +1,20 @@
 <template>
-    <TDataTable :value="dataList" paginator :rows="rowSize" tableStyle="max-width:100%;" :selectionMode="selectionMode"
-        aria-haspopup="true" columnResizeMode="expand" :header="visibleState" v-model:filters="localFilters">
-        <template #header v-if="visibleState">
-            <div style="display: flex; justify-content: end;">
-                <TButton icon="pi pi-refresh" rounded raised @click="refreshData"
-                    style="color:white; background-color: turquoise; border: 1px solid turquoise; margin-right: 10px;"
-                    v-tooltip.bottom="'Yenile'" />
-
-                <download-excel :data="dataList" :name="excelName + '.xls'">
-                    <TButton icon="pi pi-download" rounded raised
-                        style="color:white; background-color: turquoise; border: 1px solid turquoise;"
-                        v-tooltip.bottom="'\Excel\'e aktar'" />
-                </download-excel>
-
-            </div>
+    <TDataTable :value="dataList" tableStyle="max-width:100%;" :selectionMode="selectionMode" aria-haspopup="true" paginator
+        :rows="4" columnResizeMode="expand" :header="visibleState" v-model:filters="localFilters">
+        
+        <slot name="columnSlot"></slot>
+        <template #paginatorstart>
+            <TButton icon="pi pi-refresh" @click="refreshData" text style="color: turquoise;"
+                v-tooltip.bottom="'Yenile'" />
         </template>
 
-        <slot name="columnSlot"></slot>
-
-
+        <template #paginatorend>
+            <download-excel :data="dataList" :name="excelName + '.xls'" v-if="visibleState">
+                    <TButton icon="pi pi-download" text 
+                        style="color:turquoise;"
+                        v-tooltip.bottom="'\Excel\'e aktar'" />
+                </download-excel>
+            </template>
     </TDataTable>
 </template>
 
@@ -39,11 +35,6 @@ export default {
             type: String,
             required: false,
             default: "single"
-        },
-        rowSize: {
-            type: Number,
-            required: false,
-            default: 5
         },
         filterDisplay: {
             required: false,
@@ -77,4 +68,6 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

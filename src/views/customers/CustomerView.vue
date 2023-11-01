@@ -1,6 +1,6 @@
 <template>
   <div class="customer-panel">
-    <header-component :mainTitle="'Müşteriler'" :btnTitle="'Müşteri Ekle'" @btnClick="addCustomer"></header-component>
+    <header-component :mainTitle="'Müşteriler'" :btnTitle="'Müşteri Ekle'" @btnClick="isDialog = true"></header-component>
 
     <add-customer-popup :closeDialog="closeDialog" v-if="isDialog"></add-customer-popup>
 
@@ -36,6 +36,7 @@
             </template>
           </TColumn>
         </template>
+
       </PVDataTable>
     </div>
 
@@ -58,21 +59,21 @@ export default {
     const menu = ref();
     const isDialog = ref(false);
 
-    const closeDialog  = () => {
-      isDialog.value = false
+    const closeDialog = (onSuccess) => {
+      if (onSuccess == true) {
+        isDialog.value = false;
+        customerList.value = [];
+        getCustomerData();
+      }
+      isDialog.value = false;
     }
 
-    const addCustomer = () => {
-      isDialog.value = true;
-    }
     const items = ref([
       { label: "Görüşme Başlat (Chat)", icon: 'pi pi-comment', command: () => handleMenuItem('meeting') },
       { separator: true },
       { label: "Görüşme Talebi Oluştur", icon: 'pi pi-calendar-times', command: () => handleMenuItem('meeting') },
       { separator: true },
-      {
-        label: "Talep Bilgileri", icon: 'pi pi-info-circle', command: () => handleMenuItem('requestInfo')
-      }
+      { label: "Görüşme Notları", icon: 'pi pi-info-circle', command: () => handleMenuItem('requestInfo') }
     ]);
 
     // Context menu elementine tiklandigi durum
@@ -82,7 +83,6 @@ export default {
       } else if (route === "requestInfo") {
         console.log("Dialog açılacak!");
       }
-
     }
 
     const onCellRightClick = (event) => {
@@ -113,7 +113,7 @@ export default {
       getCustomerData();
     }
 
-    return {  customerList, isSpinner, items, handleMenuItem, onCellRightClick, menu, selectedRequest, refreshData,addCustomer,closeDialog,isDialog }
+    return { customerList, isSpinner, items, handleMenuItem, onCellRightClick, menu, selectedRequest, refreshData, closeDialog, isDialog }
   }
 }
 </script>

@@ -13,23 +13,9 @@
 
     <div class="component-area-project">
       <TDataTable @contextmenu="onCellRightClick" selectionMode="single" aria-haspopup="true"
-        v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList" paginator :rows="10"
+        v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList" paginator :rows="5"
         tableStyle="min-width:100%;" filterDisplay="row" resizableColumns columnResizeMode="expand">
-
-        <template #header>
-          <div style="display: flex; justify-content: end;">
-            <TButton icon="pi pi-refresh" rounded raised @click="refreshData"
-              style="color:white; background-color: turquoise; border: 1px solid turquoise; margin-right: 10px;"
-              v-tooltip.bottom="'Yenile'" />
-
-            <download-excel :data="requestList" :name="'adminRequest.xls'">
-              <TButton icon="pi pi-download" rounded raised
-                style="color:white; background-color: turquoise; border: 1px solid turquoise;"
-                v-tooltip.bottom="'\Excel\'e aktar'" />
-            </download-excel>
-          </div>
-        </template>
-
+ 
         <TColumn field="project" header="Proje Adı"></TColumn>
         <TColumn field="company" header="Firma"></TColumn>
         <TColumn field="title" header="Talep Başlığı"></TColumn>
@@ -50,6 +36,19 @@
           </template>
 
         </TColumn>
+
+        <template #paginatorstart>
+            <TButton icon="pi pi-refresh" @click="refreshData" text style="color: turquoise;"
+                v-tooltip.bottom="'Yenile'" />
+        </template>
+
+        <template #paginatorend>
+            <download-excel :data="dataList" name="requestList.xls" >
+                    <TButton icon="pi pi-download" text 
+                        style="color:turquoise;"
+                        v-tooltip.bottom="'\Excel\'e aktar'" />
+                </download-excel>
+            </template>
       </TDataTable>
     </div>
 
@@ -140,7 +139,6 @@ export default {
         });
       });
 
-      console.log(reqList.value);
       const filteredReq = reqList.value.filter((item) => {
         return item.state === false;
       });

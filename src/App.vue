@@ -1,10 +1,11 @@
 <template>
   <div class="app-container">
-    <div v-if="isLogged && stateNavbar" >
+    <div v-if="isLogged && stateNavbar">
       <menu-component :is-user="isUser"></menu-component>
     </div>
     <div class="componentArea">
-      <nav-bar :is-login="isLogged" @closeMenu="closeSideMenu"></nav-bar>
+      <nav-bar :is-login="isLogged" @closeMenu="closeSideMenu" :companyMail="companyMail"
+        :companyName="companyName"></nav-bar>
       <router-view></router-view>
     </div>
   </div>
@@ -19,16 +20,20 @@ import { app } from '@/firebase/config';
 import { onMounted, ref } from 'vue';
 import NavBar from './components/NavBar.vue';
 export default {
-  components: { MenuComponent,NavBar },
+  components: { MenuComponent, NavBar },
   setup() {
     const isLogged = ref(false);
     const isUser = ref(false);
     const auth = getAuth(app);
     const stateNavbar = ref(true);
+    const companyName = ref(null);
+    const companyMail = ref(null);
     onMounted(() => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
           isLogged.value = true;
+          companyName.value = user.displayName;
+          companyMail.value = user.email;
 
           if (user.displayName !== null) {
             isUser.value = true;
@@ -41,7 +46,7 @@ export default {
       stateNavbar.value = state.value;
     }
 
-    return { isLogged, isUser, closeSideMenu, stateNavbar }
+    return { isLogged, isUser, closeSideMenu, stateNavbar, companyName, companyMail }
   }
 }
 </script>
@@ -58,14 +63,19 @@ export default {
 .app-container {
   display: flex;
   width: 100%;
+  height: 100vh;
 }
 
 .componentArea {
   width: 100%;
+  height: 100vh;
+  scroll-behavior: auto;
+  overflow: auto;
 }
 
 .error-class {
   color: red;
+  font-size: 12px;
   font-weight: bold;
 }
 
@@ -81,7 +91,27 @@ export default {
   .component-area-project {
     width: 80%;
     display: inline-block;
-}
+  }
+
 }
 
+.input-right-element {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+  width: 50%;
+}
+
+.input-left-element {
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+  width: 50%;
+}
+
+.row-element {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
 </style>

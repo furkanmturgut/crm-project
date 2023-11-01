@@ -1,63 +1,73 @@
 <template>
-    <PVDialog :header="'Müşteri Ekle'" :closeDialog="closeDialog">
+    <PVDialog :header="'Müşteri Ekle'" :closeDialog="closeDialog" @onSubmit="saveCustomer">
         <template #dialogForm>
             <form @submit.prevent="saveCustomer">
                 <div class="add-area">
-                    <label for="compName">Firma Adı</label>
-                    <TInputText id="compName" placeholder="Firma Adı" v-model="companyName" @input="formValidation(0)">
-                    </TInputText>
-                    <small v-if="errorState.name">{{ errorMsg.name }}</small>
+                    <div class="row-element">
+                        <div class="input-left-element">
+                            <label for="compName">Firma Adı</label>
+                            <TInputText id="compName" placeholder="Firma Adı" v-model="companyName"
+                                @input="formValidation(0)">
+                            </TInputText>
+                            <small v-if="errorState.name" class="error-class">{{ errorMsg.name }}</small>
+                        </div>
 
-                    <label for="compPerson">Firma İletişim Yetkilisi</label>
-                    <TInputText id="compPerson" placeholder="Firma İletişim Yetkilisi" v-model="companyPerson"
-                        @input="formValidation(1)">
-                    </TInputText>
-                    <small v-if="errorState.person">{{ errorMsg.person }}</small>
-
-                    <label for="compPhone">Firma İrtibat Numarası (+90)</label>
-                    <TInputMaskView id="compPhone" v-model="companyPhone" date="phone" mask="(999) 999-9999"
-                        placeholder="5XX XXX XXXX" @input="formValidation(2)">
-                    </TInputMaskView>
-                    <small v-if="errorState.phone">{{ errorMsg.phone }}</small>
-
-                    <label for="compMail">Firma Email</label>
-                    <TInputText id="compMail" placeholder="Firma Mail Adres" v-model="companyMail"
-                        @input="formValidation(3)">
-                    </TInputText>
-                    <small v-if="errorState.mail">{{ errorMsg.mail }}</small>
-
-                    <label for="compPass">Firma Parola</label>
-                    <TInputText id="compPass" placeholder="Firma Parolası" v-model="companyPass" @input="formValidation(5)">
-                    </TInputText>
-                    <small v-if="errorState.pass">{{ errorMsg.pass }}</small>
-
-                    <label for="compAddress">Firma Adresi</label>
-                    <TextArea id="compAddress" placeholder="Firma Adresi" autoResize rows="3" cols="10"
-                        v-model="companyAddress" @input="formValidation(4)"></TextArea>
-                    <small v-if="errorState.address">{{ errorMsg.address }}</small>
-
-                    <label>Müşteri Türü</label>
-                    <div class="radio-area">
-                        <TRadioButton v-model="selectCustomerType" value="Eski Müşteri" name="customer"></TRadioButton>
-                        <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Eski Müşteri</label>
-
-                        <TRadioButton v-model="selectCustomerType" value="Yeni Müşteri" name="customer"></TRadioButton>
-                        <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Yeni Müşteri</label>
-
-
-                        <TRadioButton v-model="selectCustomerType" value="Potansiyel Müşteri" name="customer">
-                        </TRadioButton>
-                        <label style="margin-top: -5px; margin-left:6px; margin-right: 10px;">Potansiyel Müşteri</label>
+                        <div class="input-right-element">
+                            <label for="compPerson">Firma İletişim Yetkilisi</label>
+                            <TInputText id="compPerson" placeholder="Firma İletişim Yetkilisi" v-model="companyPerson"
+                                @input="formValidation(1)">
+                            </TInputText>
+                            <small v-if="errorState.person" class="error-class">{{ errorMsg.person }}</small>
+                        </div>
                     </div>
 
-                    <div v-if="errorState.spinner" style="display:flex; justify-content:center; margin-top:18px;">
-                        <TSpinner style="height: 50px;"></TSpinner>
-                    </div>
-                    <TButton v-show="!errorState.spinner" class="add-customer-btn" label="KAYDET" type="submit"></TButton>
-                    <TToast></TToast>
-                    <small style="display:flex; justify-content:center;" v-if="errorState.all">{{ errorMsg.all }}</small>
+                    <div class="row-element">
+                        <div class="input-left-element">
+                            <label for="compPhone">Firma Numarası (+90)</label>
+                            <TInputMaskView id="compPhone" v-model="companyPhone" date="phone" mask="(999) 999-9999"
+                                placeholder="5XX XXX XXXX" @input="formValidation(2)">
+                            </TInputMaskView>
+                            <small v-if="errorState.phone" class="error-class">{{ errorMsg.phone }}</small>
+                        </div>
 
+                        <div class="input-right-element">
+                            <label for="compMail">Firma Email</label>
+                            <TInputText id="compMail" placeholder="Firma Mail Adres" v-model="companyMail"
+                                @input="formValidation(3)">
+                            </TInputText>
+                            <small v-if="errorState.mail" class="error-class">{{ errorMsg.mail }}</small>
+                        </div>
+                    </div>
+
+                    <div class="row-element">
+                        <div class="input-left-element">
+                            <label for="compPass">Firma Parola</label>
+                            <TInputText id="compPass" placeholder="Firma Parolası" v-model="companyPass"
+                                @input="formValidation(5)">
+                            </TInputText>
+                            <small v-if="errorState.pass" class="error-class">{{ errorMsg.pass }}</small>
+                        </div>
+
+                        <div class="input-right-element">
+                            <label>Müşteri Türü</label>
+                            <TDropdown v-model="selectCustomerType" :options="customerType" optionLabel="type"
+                                placeholder="Müşteri Durumu Seçin" showClear></TDropdown>
+                        </div>
+                    </div>
+
+                    <div class="row-element">
+                        <div class="input-left-element">
+                            <label for="compAddress">Firma Adresi</label>
+                            <TextArea id="compAddress" placeholder="Firma Adresi" autoResize rows="3" cols="10"
+                                v-model="companyAddress" @input="formValidation(4)"></TextArea>
+                            <small v-if="errorState.address" class="error-class">{{ errorMsg.address }}</small>
+                        </div>
+
+                    </div>
                 </div>
+                <TToast></TToast>
+                <small class="error-class" style="display: flex; justify-content: center; margin-top: 10px;" v-if="errorState.all">{{ errorMsg.all }}</small>
+
             </form>
         </template>
     </PVDialog>
@@ -68,7 +78,7 @@ import { ref } from 'vue';
 import addCustomer from '@/firebase/addCustomer';
 import { serverTimestamp } from 'firebase/firestore';
 import createUser from '@/firebase/createUser.js';
-import { toastSuccess } from '@/components/Base/toast';
+import { toastError, toastSuccess } from '@/components/Base/toast';
 import PVDialog from '@/components/PVDialog.vue';
 export default {
     name: "AddCustomerPopup",
@@ -79,9 +89,14 @@ export default {
             required: true
         },
     },
-    setup() {
-        const errorState = ref({ name: false, person: false, phone: false, mail: false, address: false, spinner: false, pass: false, all: false });
+    setup(props) {
+        const errorState = ref({ name: false, person: false, phone: false, mail: false, address: false, pass: false, all: false });
         const errorMsg = ref({ name: null, person: null, phone: null, mail: null, address: null, pass: null, all: false });
+        const customerType = ref([
+            { type: "Eski Müşteri" },
+            { type: "Yeni Müşteri" },
+            { type: "Potansiyel Müşteri" }
+        ]);
         const companyName = ref('');
         const companyPerson = ref(null);
         const companyPhone = ref(null);
@@ -166,21 +181,21 @@ export default {
                 };
                 createUser(companyMail.value, companyPass.value, companyName.value);
 
-
                 await addCustomer(customerData);
-                toastSuccess("Müşteri başarıyla eklendi")
-                errorState.value.spinner = false;
+                toastSuccess("Müşteri başarıyla eklendi");
                 setTimeout(() => {
                     // close dialog and refresh
+                    props.closeDialog(true);
                 }, 1000);
 
             } else {
                 errorState.value.all = true;
-                errorMsg.value.all = "Tüm alanları doldurunuz"
+                errorMsg.value.all = "Tüm alanları doldurunuz";
+                toastError("Lütfen tüm alanları doldurunuz");
             }
         }
 
-        return { companyName, companyPerson, companyPhone, companyMail, companyAddress, formValidation, errorMsg, errorState, saveCustomer, selectCustomerType, companyPass }
+        return { customerType, companyName, companyPerson, companyPhone, companyMail, companyAddress, formValidation, errorMsg, errorState, saveCustomer, selectCustomerType, companyPass }
     }
 
 }
@@ -198,16 +213,11 @@ label {
     margin: 10px 0;
 }
 
-.add-customer-btn {
-    background-color: turquoise;
-    margin: 16px 0;
-    border: 1px solid turquoise;
-}
-
-small {
+/* small {
     color: red;
     font-weight: bold;
-}
+    font-size: 16px;
+} */
 
 .radio-area {
     display: flex;

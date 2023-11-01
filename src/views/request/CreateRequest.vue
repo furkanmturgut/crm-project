@@ -1,11 +1,12 @@
 <template>
     <div class="request-area">
         <header-component :mainTitle="'Taleplerim'" :btnTitle="'Talep Oluştur'"
-            @btnClick="addRequestBtn"></header-component>
-            <add-request-popup :closeDialog="closeDialog"></add-request-popup>
+            @btnClick="isDialog = true"></header-component>
+        <add-request-popup :closeDialog="closeDialog" v-if="isDialog" ></add-request-popup>
         <br />
         <div class="component-area-project">
-            <PVDataTable :dataList="projectList" :visibleState="false">
+            <PVDataTable :dataList="projectList" :excelName="'projectList'"
+                @refreshData="refreshData">
                 <template #columnSlot>
                     <TColumn field="project" header="Proje Adı"></TColumn>
                     <TColumn field="company" header="Firma"></TColumn>
@@ -34,7 +35,7 @@ import AddRequestPopup from '@/views/request/AddRequestPopup.vue';
 export default {
     name: "CreateRequest",
     components: {
-        HeaderComponent, PVDataTable,AddRequestPopup
+        HeaderComponent, PVDataTable, AddRequestPopup
     },
     setup() {
         const auth = getAuth(app);
@@ -42,18 +43,23 @@ export default {
         const firestore = getFirestore(app);
         const projectList = ref([]);
         const isDialog = ref(false);
+
         onMounted(async () => {
+            getData();
+        });
+
+        const getData = async () => {
             if (user.displayName != null) {
                 const q = query(collection(firestore, "requests"), where("company", "==", user.displayName));
                 await getDocs(q).then((snapshot) => {
                     snapshot.forEach((item) => {
                         projectList.value.push(item.data());
                     });
-                })
+                });
             }
-        });
+        }
 
-        // Column icinde yer alan tag elementiin rengi degistirildi
+        // Column icinde yer alan tag elementin rengi degistirildi
         const getSeverity = (project) => {
             switch (project.state) {
                 case true:
@@ -63,16 +69,20 @@ export default {
             }
         }
 
-        const addRequestBtn = () => {
-            isDialog.value = true;
+        const refreshData = () => {
+            projectList.value = [];
+            getData();
         }
 
-        const closeDialog = () => {
+        const closeDialog = (onSuccess) => {
+            if(onSuccess === true){
+                projectList.value = [];
+                getData();
+            }
             isDialog.value = false;
         }
 
-
-        return { addRequestBtn, projectList, getSeverity,closeDialog,isDialog }
+        return { projectList, getSeverity, closeDialog, isDialog,refreshData }
     }
 }
 

@@ -1,7 +1,8 @@
 <template>
     <div class="offer-area">
-        <header-component :mainTitle="'Teklifler'" :btnTitle="'Teklif Gönder'" @btnClick="newOffer"></header-component>
-        <new-offer-popup :closeDialog="closeDialog" v-if="isDialog"></new-offer-popup>
+        <header-component :mainTitle="'Teklifler'" :btnTitle="'Teklif Gönder'"
+            @btnClick="isDialog = true"></header-component>
+        <interview-popup :closeDialog="closeDialog" v-if="isDialog"></interview-popup>
         <span style="font-weight: bold; font-size: 22px; margin:20px 0;">Gönderilmiş Mailler</span>
         <TAccordion style="width: 60%; margin: 8px 0;" v-for="mail in mailList" :key="mail.mailDate">
             <TAccordionTab>
@@ -28,35 +29,41 @@
 
 <script>
 import { onMounted, ref } from 'vue';
-import { getFirestore, query, collection, getDocs,orderBy } from "firebase/firestore";
+import { getFirestore, query, collection, getDocs, orderBy } from "firebase/firestore";
 import { app } from '@/firebase/config.js';
 import HeaderComponent from '@/components/HeaderComponent.vue';
-import NewOfferPopup from './NewOfferPopup.vue';
+import InterviewPopup from './InterviewPopup.vue';
 export default {
     name: "OffersView",
-    components:{HeaderComponent,NewOfferPopup},
+    components: { HeaderComponent, InterviewPopup },
     setup() {
         const mailList = ref([]);
         const firestore = getFirestore(app);
         const isDialog = ref(false);
-        const newOffer = () => {
-            isDialog.value = true;
-        }
 
-        const closeDialog = () => {
+        const closeDialog = (onSuccess) => {
+            if (onSuccess === true) {
+                mailList.value = [];
+                getData();
+                isDialog.value = false;
+            }
             isDialog.value = false;
         }
 
-        onMounted(async () => {
-            const q = query(collection(firestore, "mailList"),orderBy("mailDate","desc"));
+        onMounted(() => {
+            getData();
+        });
+
+        const getData = async () => {
+            const q = query(collection(firestore, "mailList"), orderBy("mailDate", "desc"));
             await getDocs(q).then((snapshot) => {
                 snapshot.forEach((item) => {
                     mailList.value.push(item.data());
                 })
             });
-        })
+        }
 
-        return { newOffer,mailList,isDialog,closeDialog }
+        return { mailList, isDialog, closeDialog }
     }
 
 }
@@ -70,22 +77,4 @@ export default {
     flex-direction: column;
 }
 
-.btn-add-offer {
-    width: 26%;
-    height: 64px;
-    background-color: turquoise;
-    margin: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.btn-name {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    text-align: center;
-}
 </style>

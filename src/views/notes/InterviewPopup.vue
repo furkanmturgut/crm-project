@@ -1,27 +1,44 @@
 <template>
-    <PVDialog :header="'Yeni Teklif Oluştur'" :closeDialog="closeDialog">
+    <PVDialog :header="'Yeni Teklif Oluştur'" :closeDialog="closeDialog" @onSubmit="sendToOffer">
         <template #dialogForm>
             <form @submit.prevent="sendToOffer">
                 <div class="offer-area">
-                    <label>Mail atılacak firmayı arayın</label>
-                    <TAutoComplete inputStyle="width:100%" v-model="searchCompany" @change="selectCompany"
-                        :suggestions="items" optionLabel="name" @complete="search"></TAutoComplete>
+                    <div class="row-element">
+                        <div class="input-left-element">
+                            <label>Mail atılacak firmayı arayın</label>
+                            <TAutoComplete inputStyle="width:100%" v-model="searchCompany" @change="selectCompany"
+                                :suggestions="items" optionLabel="name" @complete="search"></TAutoComplete>
+                        </div>
 
-                    <label>Gönderilecek Email</label>
-                    <TInputText placeholder="Email" v-model="sendMail"></TInputText>
+                        <div class="input-right-element">
+                            <label>Gönderilecek Email</label>
+                            <TInputText placeholder="Email" v-model="sendMail"></TInputText>
+                        </div>
+                    </div>
 
-                    <label>Konu Başlığı</label>
-                    <TInputText placeholder="Başlık" v-model="sendTitle"></TInputText>
+                    <div class="row-element">
+                        <div class="input-left-element">
+                            <label>Konu Başlığı</label>
+                            <TInputText placeholder="Başlık" v-model="sendTitle"></TInputText>
+                        </div>
+                        <div class="input-right-element">
+                            <label>Konu İçeriği</label>
+                            <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30"
+                                v-model="sendContent"></TextArea>
+                        </div>
+                    </div>
 
-                    <label>Konu İçeriği</label>
-                    <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="sendContent"></TextArea>
+                    <div class="row-element">
+                        <div class="input-left-element" style="margin-top:-100px;">
+                            <label>PDF Dosyası</label>
+                            <TFileUpload mode="basic" chooseLabel="Yükle" accept="application/pdf" @upload="pdfUpload"
+                                style="width: 50%; background-color: turquoise; border: 1px solid turquoise;">
+                            </TFileUpload>
+                        </div>
+                        <div class="input-right-element">
 
-                    <label>PDF Dosyası</label>
-                    <TFileUpload mode="basic" chooseLabel="Yükle" accept="application/pdf" @upload="pdfUpload">
-                    </TFileUpload>
-
-                    <TButton class="btn-style" type="submit" label="GÖNDER"></TButton>
-
+                        </div>
+                    </div>
                     <TToast></TToast>
                 </div>
             </form>
@@ -40,13 +57,13 @@ import PVDialog from '@/components/PVDialog.vue';
 export default {
     components: { PVDialog },
     name: "NewOfferPopup",
-    props:{
-        closeDialog:{
-            type:Function,
-            required:true
+    props: {
+        closeDialog: {
+            type: Function,
+            required: true
         }
     },
-    setup() {
+    setup(props) {
         const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
         const sendMail = ref(null);
         const sendTitle = ref(null);
@@ -102,7 +119,7 @@ export default {
                 toastSuccess("Mail başarıyla yollandı")
 
                 setTimeout(() => {
-                    //close dialog
+                    props.closeDialog(true);
                 }, 1000);
 
             } else {
@@ -125,11 +142,5 @@ export default {
 label {
     font-weight: bold;
     margin: 10px 0;
-}
-
-.btn-style {
-    margin: 10px 0;
-    background-color: turquoise;
-    border: 1px solid turquoise;
 }
 </style>

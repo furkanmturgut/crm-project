@@ -37,13 +37,12 @@ export default {
             { id: 2, label: 'Müşteri Yönetimi', active: false, icons: 'pi pi-id-card', isAdmins: true },
             { id: 12, label: 'Müşteri Talepleri', active: false, icons: 'pi pi-file-edit', isAdmins: true },
             { id: 3, label: 'İletişim Yönetimi', active: false, icons: 'pi pi-envelope', isAdmins: true },
-            { id: 8, label: 'Teklif Yönetimi', active: false, icons: 'pi pi-file', isAdmins: true },
+            { id: 8, label: 'Görüşme Notları', active: false, icons: 'pi pi-file', isAdmins: true },
             { id: 4, label: 'Görev ve Takvim Yönetimi', active: false, icons: 'pi pi-calendar', isAdmins: true },
             { id: 5, label: 'Kullanıcı Yönetimi', active: false, icons: 'pi pi-user', isAdmins: true },
             { id: 6, label: 'Projeler & Ürünler', active: false, icons: 'pi pi-folder-open', isAdmins: true },
             { id: 9, label: 'Projelerim', active: false, icons: 'pi pi-folder-open', isUsers: true },
-            { id: 10, label: 'Talep Oluştur', active: false, icons: 'pi pi-file-edit', isUsers: true },
-
+            { id: 10, label: 'Talep Durumu', active: false, icons: 'pi pi-file-edit', isUsers: true },
         ]);
         const itemsControl = ref([]);
 
@@ -76,24 +75,22 @@ export default {
                 } else if (index == 5) {
                     console.log("Görev")
                 } else if (index == 6 || index == 9) {
-                    router.push({ name: "ProjectView" })
+                    router.push({ name: "ProjectView" });
                 } else if (index == 12) {
-                    router.push({ name: "AdminRequest" })
+                    router.push({ name: "AdminRequest" });
                 }
 
                 // User's
                 if (index == 10) {
-                    router.push({ name: "CreateRequestView" })
+                    router.push({ name: "CreateRequestView" });
                 } else if (index == 11) {
-                    console.log("Bildirim")
+                    console.log("Bildirim");
                 }
             }
         }
 
         return { itemsControl, selectItem }
-
     }
-
 }
 </script>
 
@@ -107,6 +104,7 @@ export default {
     background-color: turquoise;
     height: 100vh;
     width: 200px;
+    overflow: auto;
 }
 
 i {
@@ -144,11 +142,15 @@ li:hover {
     background-color: rgb(255, 255, 255, 0.8);
 }
 
-@media only screen and (max-width:600px) {
+@media only screen and (max-width:700px) {
     .menu {
         background-color: turquoise;
         height: 100vh;
         width: 100px;
+    }
+
+    .container {
+        scroll-behavior: auto;
     }
 }
 </style>

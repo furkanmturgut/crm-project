@@ -1,7 +1,7 @@
 <template>
     <div class="navbar" id="navbar" v-if="isLogin">
         <div style="display: flex; align-items: center; color: white; margin-left: 10px;">
-            <i class="pi pi-align-justify" style="cursor: pointer;" @click="openSideMenu"></i>
+            <i class="pi pi-align-justify" style="cursor: pointer; " @click="openSideMenu"></i>
         </div>
         <div
             style="display: flex;  align-items: center; justify-content: flex-end; height: 100%; width: max-content; margin-left: auto;">
@@ -14,7 +14,19 @@
                 aria-controls="profile_menu" @click="openMenu" v-tooltip.bottom="'Hesap'"></i>
         </div>
     </div>
+    <TConfirm></TConfirm>
     <TMenu ref="op" id="profile_menu" :model="profileItem" :popup="true" style="margin-top:10px;">
+        <template #start>
+            <div style="display: flex; align-items: center; padding-left: 4px;">
+                <img src="../assets/favicon.png" style="width: 20px; height: 20px;" />
+                <div style="display: flex; flex-direction: column; width: 100%; margin-left: 10px;">
+                    <span>{{ companyName === null ? 'ADMIN' : companyName }}</span>
+                    <span style="width: 100%; border-top: 1px solid black;"></span>
+                    <span>{{ companyMail }}</span>
+                </div>
+            </div>
+        </template>
+
         <template #item="{ props, label }">
             <div class="overlayMenu">
                 <span style="margin-right: 6px;" v-bind="props.icon"></span>
@@ -24,13 +36,10 @@
     </TMenu>
 
     <TMenu ref="opNot" id="not_menu" :model="notificationItem" :popup="true" style="margin-top:10px;">
-        <template #item="{ props }">
-            <div class="notMenu">
+        <template #item="{ props, label }">
+            <div class="overlayMenu">
                 <span style="margin-right: 6px;" v-bind="props.icon"></span>
-                <span>Toplamda <b style="text-decoration: underline;" v-tooltip.bottom="'Git'" @click="clickNotification">{{
-                    notificationLength }}
-                        adet</b> çözülmemiş talep ve <b v-tooltip.bottom="'Git'" style="text-decoration: underline;">68
-                        adet</b> görüşme talebi bulunmaktadır.</span>
+                <span>{{ label }}</span>
             </div>
         </template>
     </TMenu>
@@ -49,8 +58,17 @@ export default {
             type: Boolean,
             required: true,
             default: true
+        },
+        companyName: {
+            type: String,
+            required: true,
+        },
+        companyMail: {
+            required: true,
+            type: String
         }
     },
+
     setup(props, { emit }) {
         const router = useRouter();
         const op = ref();
@@ -61,7 +79,7 @@ export default {
         const sideMenu = ref(true);
         const data = ref([]);
         const notificationItem = ref([
-            { icon: 'pi pi-info-circle' },
+
         ]);
         const profileItem = ref([
             { label: 'Profil', icon: 'pi pi-user' },
@@ -76,18 +94,41 @@ export default {
         }
 
         onMounted(async () => {
+            // Notification size
             const q = query(collection(firestore, "requests"), where("state", "==", false));
             onSnapshot(q, (snapshot) => {
                 data.value = [];
                 snapshot.forEach((item) => {
                     data.value.push(item.data());
                 });
+
+                notificationItem.value.push(
+                    { icon: 'pi pi-info-circle', label: data.value.length + ' adet bekleyen talebiniz var.' },
+                    { icon: 'pi pi-hourglass', label: 3 + ' adet bekleyen talebiniz var.' },
+                    { icon: 'pi pi-comment', label: 2 + ' adet bekleyen mesajınız var.' }
+                );
+
+                if (props.companyName !== null) {
+                    const filteredData = data.value.filter((item) => {
+                        return item.company === props.companyName
+                    });
+
+                    data.value = [];
+                    data.value = filteredData;
+                    notificationItem.value = [];
+                    notificationItem.value.push(
+                    { icon: 'pi pi-info-circle', label: data.value.length + ' adet bekleyen talebiniz var.' },
+                    { icon: 'pi pi-hourglass', label: 3 + ' adet bekleyen talebiniz var.' },
+                    { icon: 'pi pi-comment', label: 2 + ' adet bekleyen mesajınız var.' }
+                );
+                }
             });
         });
 
         const notificationLength = computed(() => {
             return data.value.length;
         });
+
 
         // openOverlayMenu
         const openMenu = (event) => { op.value.toggle(event); }
@@ -123,10 +164,11 @@ export default {
     width: 100%;
     background-color: #746f6f;
     display: flex;
-
 }
 
-
+.pi-align-justify:hover {
+    color: turquoise;
+}
 
 .notificationSize {
     color: black;
