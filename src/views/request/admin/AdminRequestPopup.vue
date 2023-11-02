@@ -1,5 +1,5 @@
 <template>
-  <PVDialog :header="'Talebi Yanıtla'" :closeDialog="closeDialog" :btnLabel="'Yanıtla'">
+  <PVDialog :header="'Talebi Yanıtla'" :closeDialog="closeDialog" :btnLabel="'Yanıtla'" @onSubmit="sendRequest">
     <template #dialogForm>
       <form @submit.prevent="sendRequest">
         <div class="add-area">
@@ -39,8 +39,6 @@
             </div>
           </div>
 
-
-
           <label style="margin: 10px 0;">Talebe Yanıt Yaz</label>
           <TextArea @input="formValidation(0)" v-model="sendRequestDesc" autoResize rows="5" cols="30"></TextArea>
           <small style="color: red; font-weight: bold;" v-if="errorState.reqDesc">{{ errorMsg.reqDesc }}</small>
@@ -55,9 +53,10 @@
 import { ref } from 'vue';
 import addSendRequest from '@/firebase/addSendRequest';
 import { toastError, toastSuccess } from '@/components/Base/toast';
-import { getFirestore, where, collection, query, onSnapshot, updateDoc } from 'firebase/firestore';
+import { getFirestore, where, collection, query, onSnapshot, updateDoc,getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
 import PVDialog from '@/components/PVDialog.vue';
+import { uid } from 'uid';
 export default {
   name: "AdminRequestPopup",
   components: { PVDialog },
@@ -72,11 +71,13 @@ export default {
     }
   },
   setup(props) {
-    const selectedRequest = ref(false);
+    const selectedRequest = ref();
     const sendRequestDesc = ref('');
     const errorState = ref({ reqDesc: false });
     const errorMsg = ref({ reqDesc: null });
     const firestore = getFirestore(app);
+    const reqList = ref([]);
+    const reqCount = ref(null);
 
     // dropdown ici verileri doldurduk
     const requestState = ref([
@@ -101,44 +102,74 @@ export default {
       }
     }
 
+    const selectedUpdateRequest = async () => {
+      const q = query(collection(firestore, "requests"), where("id", "==", props.data.id));
+      onSnapshot(q, (snapshot) => {
+        snapshot.forEach((item) => {
+          const docDat = item.data();
+          const updatedData = { ...docDat, state: true, };
+          updateDoc(item.ref, updatedData);
+        });
+      });
+    }
+
+    const requestStateCount = async () => {
+      const q = query(collection(firestore, "requests"), where("company", "==", props.data.company));
+      await getDocs(q).then((snapshot) => {
+        snapshot.forEach((item) => {
+          reqList.value.push(item.data());
+        });
+      });
+
+      const filteredReq = reqList.value.filter((item) => {
+        return item.state === false;
+      });
+      reqCount.value = filteredReq.length;
+      console.log(reqCount.value)
+      const qa = query(collection(firestore, "customers"), where("compName", "==", props.data.company));
+      await getDocs(qa).then((snapshot) => {
+        snapshot.forEach((item) => {
+          const docDat = item.data();
+          const updatedData = { ...docDat, requestCount: reqCount.value };
+          updateDoc(item.ref, updatedData);
+        });
+      });
+    }
+
     const sendRequest = () => {
       if (sendRequestDesc.value.length >= 20) {
+        console.log(selectedRequest.value.name);
+
         /* bu durumda sendRequest adli tabloya yeni kayit ekledik state degisseydi
            hem güncelleme hem de sendRequest'e kayit almam gerekirdi
         */
-        if (!selectedRequest.value) {
+        if ( selectedRequest.value.name === "Talep Bekliyor" || selectedRequest.value == undefined) {
           let sendData = {
             id: props.data.id,
-            state: selectedRequest.value,
+            state: false,
             desc: sendRequestDesc.value
           };
           addSendRequest(sendData);
-          toastSuccess("Yanıtınız iletildi");
-        } else if (selectedRequest.value) {
-          updateRequest();
+          requestStateCount();
+          selectedUpdateRequest();
+          props.closeDialog(true);
+          toastSuccess("Yanıtınız iletildi ve talep durumu bekliyor");
+        } else if (selectedRequest.value.name == "Talep Alındı") {
+          requestStateCount();
+          selectedUpdateRequest();
           let sendData = {
-            id: props.data.id,
-            state: selectedRequest.value.state,
-            desc: sendRequestDesc.value
+            id: uid(),
+            state: true,
+            desc: sendRequestDesc.value,
+            reply: props.data
           };
           addSendRequest(sendData);
+          props.closeDialog(true);
           toastSuccess("Yanıtınız iletildi ve talep alındı");
         }
       } else {
         toastError("Talebin iletilmesi için tüm alanları doldurunuz");
       }
-
-    }
-
-    const updateRequest = () => {
-      const q = query(collection(firestore, "requests"), where("id", "==", props.data.id));
-      onSnapshot(q, (snapshot) => {
-        snapshot.forEach((item) => {
-          const docDat = item.data();
-          const updatedData = { ...docDat, state: selectedRequest.value.state };
-          updateDoc(item.ref, updatedData);
-        });
-      });
     }
 
     return { requestState, selectedRequest, dateFormat, sendRequestDesc, formValidation, errorMsg, errorState, sendRequest }

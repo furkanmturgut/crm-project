@@ -1,145 +1,98 @@
 <template>
-    <PVDialog :header="'Yeni Teklif Oluştur'" :closeDialog="closeDialog" @onSubmit="sendToOffer">
+    <PVDialog :header="'Görüşme Notu Oluştur'" :closeDialog="closeDialog" @onSubmit="sendToNotes">
         <template #dialogForm>
-            <form @submit.prevent="sendToOffer">
-                <div class="offer-area">
-                    <div class="row-element">
-                        <div class="input-left-element">
-                            <label>Mail atılacak firmayı arayın</label>
-                            <TAutoComplete inputStyle="width:100%" v-model="searchCompany" @change="selectCompany"
-                                :suggestions="items" optionLabel="name" @complete="search"></TAutoComplete>
-                        </div>
-
-                        <div class="input-right-element">
-                            <label>Gönderilecek Email</label>
-                            <TInputText placeholder="Email" v-model="sendMail"></TInputText>
-                        </div>
+            <form @submit.prevent="sendToNotes">
+                <div class="row-element">
+                    <div class="input-left-element">
+                        <label>Firmayı Seçiniz</label>
+                        <TDropdown placeholder="Firma Seçiniz" v-model="selectCompany" optionLabel="compName"
+                            :options="companyName"></TDropdown>
                     </div>
-
-                    <div class="row-element">
-                        <div class="input-left-element">
-                            <label>Konu Başlığı</label>
-                            <TInputText placeholder="Başlık" v-model="sendTitle"></TInputText>
-                        </div>
-                        <div class="input-right-element">
-                            <label>Konu İçeriği</label>
-                            <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30"
-                                v-model="sendContent"></TextArea>
-                        </div>
+                    <div class="input-right-element">
+                        <label>Görüşme Başlığı</label>
+                        <TInputText placeholder="Görüşme başlığı giriniz" v-model="interviewTitle"></TInputText>
                     </div>
-
-                    <div class="row-element">
-                        <div class="input-left-element" style="margin-top:-100px;">
-                            <label>PDF Dosyası</label>
-                            <TFileUpload mode="basic" chooseLabel="Yükle" accept="application/pdf" @upload="pdfUpload"
-                                style="width: 50%; background-color: turquoise; border: 1px solid turquoise;">
-                            </TFileUpload>
-                        </div>
-                        <div class="input-right-element">
-
-                        </div>
-                    </div>
-                    <TToast></TToast>
                 </div>
+
+                <div class="row-element">
+                    <div class="input-left-element">
+                        <label>Görüşme Tarihi</label>
+                        <TCalendar v-model="selectDate" placeholder="Tarih Seçiniz"></TCalendar>
+                    </div>
+                    <div class="input-right-element">
+                        <label>Görüşme Türü</label>
+                        <TDropdown placeholder="Görüşme türü giriniz" v-model="selectInterviewType" :options="interviewType" optionLabel="label"></TDropdown>
+                    </div>
+                </div>
+
+                <div style="margin: 10px 0;;">
+                    <label>Notu Ekle</label>
+                    <TextArea autoResize rows="3" cols="10" v-model="interviewDetail" style="width: 100%;"></TextArea>
+                </div>
+                <TToast></TToast>
+
             </form>
         </template>
     </PVDialog>
 </template>
 
 <script>
-import { ref } from 'vue';
-import { serverTimestamp } from 'firebase/firestore';
-import addOfferMail from '@/firebase/addOfferMail';
-import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
-import { app } from '@/firebase/config';
-import { toastError, toastSuccess } from '@/components/Base/toast';
 import PVDialog from '@/components/PVDialog.vue';
+import { ref } from 'vue';
+import customerList from '@/firebase/getCustomer';
+import { toastError, toastSuccess } from '@/components/Base/toast';
+import {addInterviewNotes} from '@/firebase/addInterviewNotes';
+import { uid } from 'uid';
+import { serverTimestamp } from 'firebase/firestore';
 export default {
     components: { PVDialog },
-    name: "NewOfferPopup",
+    name: "InterviewPopup",
     props: {
         closeDialog: {
             type: Function,
             required: true
         }
     },
-    setup(props) {
-        const emailRegex = /^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
-        const sendMail = ref(null);
-        const sendTitle = ref(null);
-        const sendContent = ref(null);
-        const firestore = getFirestore(app);
-        const customerList = ref([]);
-        const searchCompany = ref(null)
-        const items = ref([]);
-        const getUserFunc = (async () => {
-            const q = query(collection(firestore, "customers"));
-            await getDocs(q).then((qSnapshot) => {
-                qSnapshot.forEach((item) => {
-                    customerList.value.push(item.data());
-                })
-            })
-        });
-        getUserFunc();
-
-        const search = () => {
-            items.value = [];
-            const filteredUser = customerList.value.filter((item) => {
-                return item.compName.toLowerCase().includes(searchCompany.value.toLowerCase());
-            });
-
-            filteredUser.forEach((item) => {
-                items.value.push({
-                    name: item.compName,
-                    mail: item.compEmail
-                });
-            })
-        }
-
-        const selectCompany = () => {
-            const compMail = searchCompany.value.mail
-            if (compMail != undefined) {
-                sendMail.value = compMail;
+    setup() {
+        const selectCompany = ref(null);
+        const interviewTitle = ref(null);
+        const selectDate = ref(null);
+        const selectInterviewType = ref(null);
+        const interviewDetail = ref(null);
+        const companyName = customerList;
+        const interviewType = ref([
+            {label:"Uzaktan Toplantı"},
+            {label:"Telefon Görüşmesi"},
+            {label:"Yüzyüze Toplantı"}
+        ]);
+        const sendToNotes = () => {
+            if (selectCompany.value !== null && interviewTitle.value !== null && selectDate.value !== null && selectInterviewType.value !== null && interviewDetail.value !== null) {
+                toastSuccess("Görüşme başarıyla eklendi");
+                let data = {
+                    id:uid(),
+                    company:selectCompany.value,
+                    createDate:serverTimestamp(),
+                    date:selectDate.value,
+                    title:interviewTitle.value,
+                    interviewType:selectInterviewType.value,
+                    detail:interviewDetail.value
+                }
+                addInterviewNotes(data);
+            }else {
+                toastError("Lütfen tüm alanları doldurunuz");
             }
         }
 
-        const sendToOffer = async () => {
-            if (emailRegex.test(sendMail.value) && sendTitle.value != null && sendContent.value != null) {
-                const mailtoLink = `mailto:${sendMail.value}?subject=${encodeURIComponent(sendTitle.value)}&body=${encodeURIComponent(sendContent.value)}`;
-                window.location.href = mailtoLink;
 
-                const mailDetail = ({
-                    send: sendMail.value,
-                    title: sendTitle.value,
-                    content: sendContent.value,
-                    mailDate: serverTimestamp()
-                });
-
-                await addOfferMail(mailDetail);
-                toastSuccess("Mail başarıyla yollandı")
-
-                setTimeout(() => {
-                    props.closeDialog(true);
-                }, 1000);
-
-            } else {
-                toastError("Mail gönderilemedi işlemleri kontrol edin");
-            }
-        }
-
-        return { sendToOffer, sendMail, sendContent, sendTitle, search, searchCompany, items, selectCompany }
+        return { sendToNotes, selectCompany, interviewDetail, interviewTitle, selectDate, selectInterviewType, companyName,interviewType }
     }
 
 }
 </script>
 
 <style scoped>
-.offer-area {
-    display: flex;
-    flex-direction: column;
-}
-
 label {
+    color: black;
     font-weight: bold;
     margin: 10px 0;
 }

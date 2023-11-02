@@ -1,5 +1,5 @@
 <template>
-  <div class="customer-panel">
+  <div class="main-area">
     <header-component :mainTitle="'Müşteriler'" :btnTitle="'Müşteri Ekle'" @btnClick="isDialog = true"></header-component>
 
     <add-customer-popup :closeDialog="closeDialog" v-if="isDialog"></add-customer-popup>
@@ -73,7 +73,7 @@ export default {
       { separator: true },
       { label: "Görüşme Talebi Oluştur", icon: 'pi pi-calendar-times', command: () => handleMenuItem('meeting') },
       { separator: true },
-      { label: "Görüşme Notları", icon: 'pi pi-info-circle', command: () => handleMenuItem('requestInfo') }
+      { label: "Görüşme Notu Oluştur", icon: 'pi pi-info-circle', command: () => handleMenuItem('requestInfo') }
     ]);
 
     // Context menu elementine tiklandigi durum
@@ -118,13 +118,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.customer-panel {
-  width: 100%;
-  height: max-content;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-}
-</style>
+<style scoped></style>

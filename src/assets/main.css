@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300&display=swap');
+
+* {
+    margin: 0;
+    font-family: 'Cairo', sans-serif;
+    box-sizing: border-box;
+}
+
+.app-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+.componentArea {
+    width: 100%;
+    height: 100vh;
+    scroll-behavior: auto;
+    overflow: auto;
+}
+
+.error-class {
+    color: red;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.component-area-project {
+    width: 100%;
+    height: max-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+@media only screen and (max-width: 700px) {
+    .component-area-project {
+        width: 80%;
+        display: inline-block;
+    }
+
+}
+
+.input-right-element {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+    width: 50%;
+}
+
+.input-left-element {
+    display: flex;
+    flex-direction: column;
+    margin-right: 20px;
+    width: 50%;
+}
+
+.row-element {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.main-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}

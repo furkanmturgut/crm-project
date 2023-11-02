@@ -52,8 +52,8 @@
                         <label>Proje Açıklama</label>
                         <TextArea placeholder="Proje Açıklaması" autoResize rows="5" cols="30" v-model="projectDetail" style="width: 100%;"
                             @input="formValidation(2)"></TextArea>
-                        <div style="width: 100%; margin-top:10px; display: flex; " v-if="detailLength <= 59">
-                            <TKnob style="margin-right: auto;" :strokeWidth="5" v-model="detailLength" :max="60" :min="0"
+                        <div style="width: 100%; margin-top:10px; display: flex; " v-if="detailLength <= 20">
+                            <TKnob style="margin-right: auto;" :strokeWidth="5" v-model="detailLength" :max="20" :min="0"
                                 :size="50" valueColor="blue" textColor="black"></TKnob>
                             <small class="error-class" v-if="errorState.detail">{{ errorMsg.detail }}</small>
                         </div>
@@ -75,6 +75,7 @@ import { getFirestore, collection, query, getDocs } from 'firebase/firestore';
 import { app } from '@/firebase/config';
 import PVDialog from '@/components/PVDialog.vue';
 import { toastError, toastSuccess } from '@/components/Base/toast';
+import { uid } from 'uid';
 export default {
     name: "ProjectPopup",
     components: { PVDialog },
@@ -158,9 +159,9 @@ export default {
                     }
                     break;
                 case 2:
-                    if (projectDetail.value.length < 60) {
+                    if (projectDetail.value.length <= 20) {
                         errorState.value.detail = true;
-                        errorMsg.value.detail = "En az 60 karakter açıklama yazın";
+                        errorMsg.value.detail = "En az 20 karakter açıklama yazın";
                     } else {
                         errorState.value.detail = false;
                     }
@@ -169,7 +170,7 @@ export default {
         }
 
         const saveProjectForm = async () => {
-            if (projectName.value.length >= 5 && projectPrice.value.length > 0 && projectDetail.value.length >= 60) {
+            if (projectName.value.length >= 5 && projectPrice.value.length > 0 && projectDetail.value.length >= 20) {
                 if (selectProjectType.value != null) {
                     errorState.value.projectType = false;
 
@@ -177,6 +178,7 @@ export default {
                         errorState.value.company = false;
 
                         const data = {
+                            id:uid(),
                             pName: projectName.value,
                             pPrice: projectPrice.value,
                             pDetail: projectDetail.value,

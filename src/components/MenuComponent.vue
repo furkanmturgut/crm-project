@@ -36,7 +36,7 @@ export default {
             { id: 1, label: 'Anasayfa', active: true, icons: 'pi pi-home', isUsers: true, isAdmins: true },
             { id: 2, label: 'Müşteri Yönetimi', active: false, icons: 'pi pi-id-card', isAdmins: true },
             { id: 12, label: 'Müşteri Talepleri', active: false, icons: 'pi pi-file-edit', isAdmins: true },
-            { id: 3, label: 'İletişim Yönetimi', active: false, icons: 'pi pi-envelope', isAdmins: true },
+            { id: 3, label: 'Talep Yanıtları', active: false, icons: 'pi pi-check-circle', isAdmins: true },
             { id: 8, label: 'Görüşme Notları', active: false, icons: 'pi pi-file', isAdmins: true },
             { id: 4, label: 'Görev ve Takvim Yönetimi', active: false, icons: 'pi pi-calendar', isAdmins: true },
             { id: 5, label: 'Kullanıcı Yönetimi', active: false, icons: 'pi pi-user', isAdmins: true },
@@ -69,7 +69,7 @@ export default {
                 } else if (index == 2) {
                     router.push({ name: "CustomerView" });
                 } else if (index == 3) {
-                    console.log("İletişim");
+                    router.push({name:"ReplyView"})
                 } else if (index == 8) {
                     router.push({ name: "OffersView" });
                 } else if (index == 5) {

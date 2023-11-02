@@ -1,5 +1,5 @@
 <template>
-    <div class="request-area">
+    <div class="main-area">
         <header-component :mainTitle="'Taleplerim'" :btnTitle="'Talep Oluştur'"
             @btnClick="isDialog = true"></header-component>
         <add-request-popup :closeDialog="closeDialog" v-if="isDialog" ></add-request-popup>
@@ -88,11 +88,4 @@ export default {
 
 </script>
 
-<style scoped>
-.request-area {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-</style>
+<style scoped></style>

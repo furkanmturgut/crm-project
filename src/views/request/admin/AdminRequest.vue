@@ -1,5 +1,5 @@
 <template>
-  <div class="request-area">
+  <div class="main-area">
     <header-component :mainTitle="'Tüm Talepler'"></header-component>
 
     <TContextMenu ref="menu" :model="items" @select="handleMenuItem">
@@ -13,9 +13,9 @@
 
     <div class="component-area-project">
       <TDataTable @contextmenu="onCellRightClick" selectionMode="single" aria-haspopup="true"
-        v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList" paginator :rows="5"
+        v-model:selection="selectedRequest" v-model:filters="filters" :value="requestList" paginator :rows="7"
         tableStyle="min-width:100%;" filterDisplay="row" resizableColumns columnResizeMode="expand">
- 
+
         <TColumn field="project" header="Proje Adı"></TColumn>
         <TColumn field="company" header="Firma"></TColumn>
         <TColumn field="title" header="Talep Başlığı"></TColumn>
@@ -34,21 +34,17 @@
               </template>
             </TDropdown>
           </template>
-
         </TColumn>
 
         <template #paginatorstart>
-            <TButton icon="pi pi-refresh" @click="refreshData" text style="color: turquoise;"
-                v-tooltip.bottom="'Yenile'" />
+          <TButton icon="pi pi-refresh" @click="refreshData" text style="color: turquoise;" v-tooltip.bottom="'Yenile'" />
         </template>
 
         <template #paginatorend>
-            <download-excel :data="dataList" name="requestList.xls" >
-                    <TButton icon="pi pi-download" text 
-                        style="color:turquoise;"
-                        v-tooltip.bottom="'\Excel\'e aktar'" />
-                </download-excel>
-            </template>
+          <download-excel :data="dataList" name="requestList.xls">
+            <TButton icon="pi pi-download" text style="color:turquoise;" v-tooltip.bottom="'\Excel\'e aktar'" />
+          </download-excel>
+        </template>
       </TDataTable>
     </div>
 
@@ -97,7 +93,6 @@ export default {
     onMounted(() => {
       getRequestData();
     });
-
 
     const getRequestData = async () => {
       requestList.value = [];
@@ -168,8 +163,11 @@ export default {
       }
     }
 
-    const closeDialog = () => {
-      isDialog.value = false;
+    const closeDialog = (onSuccess) => {
+      if (onSuccess) {
+        refreshData();
+      }
+      isDialog.value = false
     }
 
     const onCellRightClick = (event) => {
@@ -190,13 +188,6 @@ export default {
 </script>
 
 <style scoped>
-.request-area {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
 .dropdown-style {
   width: 100%;
   height: 30px;

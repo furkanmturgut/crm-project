@@ -50,11 +50,8 @@ export default {
             emit("onSubmit");
         }
 
-        const onClose = () => {
-            emit("onClose");
-        }
 
-        return {onSubmit,onClose}
+        return {onSubmit}
     }
 
 }

@@ -41,6 +41,7 @@ import { app } from '@/firebase/config';
 import addRequest from '@/firebase/addRequest';
 import { toastSuccess } from '@/components/Base/toast';
 import PVDialog from '@/components/PVDialog.vue';
+import { uid } from 'uid';
 export default {
     name: "AddRequestPopup",
     components: { PVDialog },
@@ -100,20 +101,16 @@ export default {
 
         // taleplerden gerekli firmanınn toplam talebini aldık ve customers'e eklendi!
         const totalRequest = async () => {
-            console.log(user.displayName);
             const q = query(collection(firestore, "requests"), where("company", "==", user.displayName));
             await getDocs(q).then((snapshot) => {
                 snapshot.forEach((item) => {
                     requestCompayId.value.push(item.data());
                 });
             });
-            console.log(requestCompayId.value);
             const filteredData = requestCompayId.value.filter((item) => {
                 return item.state === false
             });
             reqCount.value = filteredData.length;
-
-            console.log(typeof reqCount.value);
             const qa = query(collection(firestore, "customers"), where("compName", "==", user.displayName));
             await getDocs(qa).then((snapshot) => {
                 snapshot.forEach((item) => {
@@ -128,9 +125,8 @@ export default {
         const sendToRequest = async () => {
             if (sendTitle.value.length >= 5 && sendContent.value.length >= 20) {
                 if (searchProject.value != null) {
-                    const id = Date.now();
                     let data = {
-                        id: id,
+                        id: uid(),
                         title: sendTitle.value,
                         desc: sendContent.value,
                         date: serverTimestamp(),

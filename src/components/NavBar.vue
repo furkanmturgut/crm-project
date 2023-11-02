@@ -102,17 +102,23 @@ export default {
                     data.value.push(item.data());
                 });
 
-                notificationItem.value.push(
-                    { icon: 'pi pi-info-circle', label: data.value.length + ' adet bekleyen talebiniz var.' },
-                    { icon: 'pi pi-hourglass', label: 3 + ' adet bekleyen talebiniz var.' },
-                    { icon: 'pi pi-comment', label: 2 + ' adet bekleyen mesajınız var.' }
-                );
-
                 if (props.companyName !== null) {
                     const filteredData = data.value.filter((item) => {
                         return item.company === props.companyName
                     });
 
+                    data.value = [];
+                    data.value = filteredData;
+                    notificationItem.value = [];
+                    notificationItem.value.push(
+                    { icon: 'pi pi-info-circle', label: data.value.length + ' adet bekleyen talebiniz var.' },
+                    { icon: 'pi pi-hourglass', label: 3 + ' adet bekleyen talebiniz var.' },
+                    { icon: 'pi pi-comment', label: 2 + ' adet bekleyen mesajınız var.' }
+                );
+                }else if(props.companyName === null) {
+                    const filteredData = data.value.filter((item) => {
+                        return item.state === false;
+                    });
                     data.value = [];
                     data.value = filteredData;
                     notificationItem.value = [];
@@ -129,7 +135,7 @@ export default {
             return data.value.length;
         });
 
-
+     
         // openOverlayMenu
         const openMenu = (event) => { op.value.toggle(event); }
 

@@ -6,7 +6,7 @@ import ProjectView from "@/views/project/ProjectView.vue";
 import InterviewNotes from "@/views/notes/InterviewNotes.vue";
 const routes = [
   {
-    path: "/home", 
+    path: "/home",
     component: HomeView,
     name: "HomeView",
     meta: { requiresAuth: true, title: "Anasayfa - CRM" },
@@ -22,7 +22,7 @@ const routes = [
     name: "CustomerView",
     component: CustomerView,
     props: true,
-    meta: { requiresAuth: false, title: "Müşteri Yönetimi" },
+    meta: { requiresAuth: true, title: "Müşteri Yönetimi" },
   },
   {
     path: "/project",
@@ -33,10 +33,10 @@ const routes = [
   },
   {
     path: "/notes",
-    name: "InterviewNotes",
+    name: "OffersView",
     component: InterviewNotes,
     props: true,
-    meta: { requiresAuth: false, title: "Görüşme Notları" },
+    meta: { requiresAuth: true, title: "Görüşme Notları" },
   },
   {
     path: "/request",
@@ -50,7 +50,15 @@ const routes = [
     name: "AdminRequest",
     component: () => import("@/views/request/admin/AdminRequest.vue"),
     props: true,
-    meta: { requiresAuth: false, title: "Müşteri Talepleri" },
+    meta: { requiresAuth: true, title: "Müşteri Talepleri" },
+  },
+
+  {
+    path: "/reply",
+    name: "ReplyView",
+    component: () => import("@/views/reply/ReplyView.vue"),
+    props: true,
+    meta: { requiresAuth: true, title: "Talep Yanıtları" },
   },
 ];
 
@@ -58,21 +66,29 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
   document.title = to.meta?.title ?? "CRM Turkuvaz";
-  const auth = getAuth();
 
+  const auth = getAuth();
   onAuthStateChanged(auth, async (user) => {
-    if (requiresAuth && !user ) {
+    if (
+      (to.path === "/request" && (!user || user.displayName === null)) ||
+      (to.path == "/adminRequest" && (!user || user.displayName !== null)) ||
+      (to.path == "/customers" && (!user || user.displayName !== null)) ||
+      (to.path == "/notes" && (!user || user.displayName !== null)) ||
+      (to.path == "/reply" && (!user || user.displayName !== null))
+    ) {
       next("/");
-    } else if (requiresAuth === false && user.displayName !== null) {
-      next("/home");
     } else {
-      next();
+      if (requiresAuth && !user) {
+        next("/");
+      } else if (requiresAuth === false && user) {
+        next("/home");
+      } else {
+        next();
+      }
     }
   });
 });
-
 export default router;

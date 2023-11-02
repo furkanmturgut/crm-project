@@ -80,6 +80,7 @@ import { serverTimestamp } from 'firebase/firestore';
 import createUser from '@/firebase/createUser.js';
 import { toastError, toastSuccess } from '@/components/Base/toast';
 import PVDialog from '@/components/PVDialog.vue';
+import {uid} from 'uid';
 export default {
     name: "AddCustomerPopup",
     components: { PVDialog },
@@ -169,7 +170,7 @@ export default {
                 errorState.value.spinner = true;
 
                 const customerData = {
-                    id: Date.now(),
+                    id: uid(),
                     compName: companyName.value,
                     compPerson: companyPerson.value,
                     compPhone: companyPhone.value,
@@ -213,15 +214,4 @@ label {
     margin: 10px 0;
 }
 
-/* small {
-    color: red;
-    font-weight: bold;
-    font-size: 16px;
-} */
-
-.radio-area {
-    display: flex;
-    flex-direction: row;
-    margin-top: 10px;
-}
 </style>

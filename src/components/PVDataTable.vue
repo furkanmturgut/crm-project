@@ -1,6 +1,6 @@
 <template>
-    <TDataTable :value="dataList" tableStyle="max-width:100%;" :selectionMode="selectionMode" aria-haspopup="true" paginator
-        :rows="4" columnResizeMode="expand" :header="visibleState" v-model:filters="localFilters">
+    <TDataTable :value="dataList" tableStyle="width:100%;" :selectionMode="selectionMode" aria-haspopup="true" paginator
+        :rows="7" columnResizeMode="expand" :header="visibleState" v-model:filters="localFilters"> 
         
         <slot name="columnSlot"></slot>
         <template #paginatorstart>
