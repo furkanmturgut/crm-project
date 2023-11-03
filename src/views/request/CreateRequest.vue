@@ -9,7 +9,6 @@
                 @refreshData="refreshData">
                 <template #columnSlot>
                     <TColumn field="project" header="Proje Adı"></TColumn>
-                    <TColumn field="company" header="Firma"></TColumn>
                     <TColumn field="title" header="Talep Başlığı"></TColumn>
                     <TColumn field="desc" header="Talep Açıklama"></TColumn>
                     <TColumn field="state" header="Talep Durumu">

@@ -34,7 +34,7 @@
             </div>
         </template>
     </TMenu>
-
+    <user-profile :closeDialog="closeDialog" v-if="isDialog"></user-profile>
     <TMenu ref="opNot" id="not_menu" :model="notificationItem" :popup="true" style="margin-top:10px;">
         <template #item="{ props, label }">
             <div class="overlayMenu">
@@ -47,6 +47,7 @@
 
 <script>
 import { useConfirm } from 'primevue/useconfirm';
+import UserProfile from '@/views/UserProfile.vue';
 import { useRouter } from 'vue-router';
 import { getAuth, signOut } from 'firebase/auth';
 import { ref, onMounted, computed } from 'vue'
@@ -68,8 +69,9 @@ export default {
             type: String
         }
     },
-
+    components:{UserProfile},
     setup(props, { emit }) {
+        const isDialog = ref(false);
         const router = useRouter();
         const op = ref();
         const opNot = ref();
@@ -78,11 +80,9 @@ export default {
         const confirm = useConfirm();
         const sideMenu = ref(true);
         const data = ref([]);
-        const notificationItem = ref([
-
-        ]);
+        const notificationItem = ref([]);
         const profileItem = ref([
-            { label: 'Profil', icon: 'pi pi-user' },
+            { label: 'Profil', icon: 'pi pi-user', command: () => userProfle() },
             { label: 'Görüşme Talepleri', icon: 'pi pi-hourglass' },
             { separator: true },
             { label: 'Çıkış Yap', icon: 'pi pi-power-off', command: () => confirmDialog() }
@@ -134,7 +134,6 @@ export default {
         const notificationLength = computed(() => {
             return data.value.length;
         });
-
      
         // openOverlayMenu
         const openMenu = (event) => { op.value.toggle(event); }
@@ -155,11 +154,19 @@ export default {
                 rejectLabel: "İptal"
             });
         }
+
+        const userProfle = () => {
+            isDialog.value = true;
+        }
+
+        const closeDialog = () => {
+            isDialog.value = false;
+        }
         const clickNotification = () => {
             router.push({ name: "AdminRequest" })
         }
 
-        return { openMenu, profileItem, op, opNot, notificationLength, openNotification, notificationItem, clickNotification, openSideMenu }
+        return { openMenu, profileItem, op, opNot, notificationLength, openNotification, notificationItem, clickNotification, openSideMenu ,isDialog,closeDialog}
     }
 }
 </script>

@@ -133,6 +133,7 @@ export default {
                         project: searchProject.value.pName,
                         company: user.displayName,
                         state: false,
+                        mail:user.email
                     };
                     await addRequest(data);
                     toastSuccess("Talep başarıyla oluşturuldu");

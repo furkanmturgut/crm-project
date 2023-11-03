@@ -28,14 +28,14 @@ import Menu from 'primevue/menu';
 import ConfirmDialog from 'primevue/confirmdialog';
 import Dialog from 'primevue/dialog';
 import Calendar from 'primevue/calendar';
-
+import Chart from 'primevue/chart';
 
 export const prime = (app) => {
+
   app.use(PrimeVue);
   const toastService = app.use(ToastService);
   const confirmationService = app.use(ConfirmationService);
   const dialogService = app.use(DialogService);
-
   app.directive('tooltip', Tooltip);
 
   app.component("TInputText", InputText);
@@ -60,6 +60,7 @@ export const prime = (app) => {
   app.component("TMenu" ,Menu);
   app.component("TDialog", Dialog);
   app.component("TCalendar",Calendar);
+  app.component("TChart",Chart);
 
   app.config.globalProperties.$toast =
     toastService.config.globalProperties.$toast;

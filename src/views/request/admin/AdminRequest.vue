@@ -60,6 +60,8 @@ import { onMounted, ref } from 'vue';
 import { toastSuccess } from '@/components/Base/toast';
 import { FilterMatchMode } from 'primevue/api';
 import AdminRequestPopup from './AdminRequestPopup.vue';
+import emailjs from '@emailjs/browser';
+
 export default {
   components: { HeaderComponent, AdminRequestPopup },
   name: "AdminRequest",
@@ -114,6 +116,8 @@ export default {
       }
     }
 
+
+
     // request tablosunda ki talep güncellendi
     const selectedUpdateRequest = async () => {
       const q = query(collection(firestore, "requests"), where("id", "==", selectedRequest.value.id));
@@ -155,6 +159,15 @@ export default {
         isDialog.value = true;
       } else if (send === 'addRequest') {
         selectedUpdateRequest();
+
+        // email gonderme islemi
+        const templateParams = {
+          to_name: "Furkan Turgut",
+          message: "Talebiniz alınmıştır",
+          from_name: selectedRequest.value.company,
+          reply_to: selectedRequest.value.mail,
+        };
+        emailjs.send('service_s90kabq', 'template_995nqvv', templateParams, 'cJIuRqM5MflTYudFw');
         // Burada veri listesi sifirlandi ve veriyi yeniden çektik
         requestList.value = [];
         requestStateCount();

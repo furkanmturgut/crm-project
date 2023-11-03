@@ -85,7 +85,6 @@ export default {
     background-color: #1d9bf0;
 }
 
-
 @media only screen and (max-width:800px) {
     .loginStyle {
         width: 60%;

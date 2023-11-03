@@ -33,8 +33,8 @@
             </div>
             <div class="input-right-element">
               <label>Talep Durumu </label>
-              <TDropdown :options="requestState" placeholder="Talep Bekliyor" optionLabel="name" v-model="selectedRequest"
-                >
+              <TDropdown :options="requestState" placeholder="Talep Bekliyor" optionLabel="name"
+                v-model="selectedRequest">
               </TDropdown>
             </div>
           </div>
@@ -53,10 +53,12 @@
 import { ref } from 'vue';
 import addSendRequest from '@/firebase/addSendRequest';
 import { toastError, toastSuccess } from '@/components/Base/toast';
-import { getFirestore, where, collection, query, onSnapshot, updateDoc,getDocs } from 'firebase/firestore';
+import { getFirestore, where, collection, query, onSnapshot, updateDoc, getDocs, serverTimestamp } from 'firebase/firestore';
 import { app } from '@/firebase/config';
 import PVDialog from '@/components/PVDialog.vue';
 import { uid } from 'uid';
+import emailjs from '@emailjs/browser';
+
 export default {
   name: "AdminRequestPopup",
   components: { PVDialog },
@@ -143,17 +145,20 @@ export default {
         /* bu durumda sendRequest adli tabloya yeni kayit ekledik state degisseydi
            hem güncelleme hem de sendRequest'e kayit almam gerekirdi
         */
-        if ( selectedRequest.value.name === "Talep Bekliyor" || selectedRequest.value == undefined) {
+        if (selectedRequest.value.name === "Talep Bekliyor" || selectedRequest.value == undefined) {
           let sendData = {
             id: props.data.id,
             state: false,
-            desc: sendRequestDesc.value
+            desc: sendRequestDesc.value,
+            companyName: props.data.company,
+            date: serverTimestamp()
           };
           addSendRequest(sendData);
           requestStateCount();
           selectedUpdateRequest();
           props.closeDialog(true);
           toastSuccess("Yanıtınız iletildi ve talep durumu bekliyor");
+
         } else if (selectedRequest.value.name == "Talep Alındı") {
           requestStateCount();
           selectedUpdateRequest();
@@ -161,8 +166,18 @@ export default {
             id: uid(),
             state: true,
             desc: sendRequestDesc.value,
-            reply: props.data
+            reply: props.data,
+            companyName: props.data.company,
+            date: serverTimestamp()
           };
+          // email gonderme islemi
+          const templateParams = {
+            to_name: "Furkan Turgut",
+            message: "Talebiniz alınmıştır",
+            from_name: props.data.company,
+            reply_to: props.data.mail,
+          };
+          emailjs.send('service_s90kabq', 'template_995nqvv', templateParams, 'cJIuRqM5MflTYudFw');
           addSendRequest(sendData);
           props.closeDialog(true);
           toastSuccess("Yanıtınız iletildi ve talep alındı");
