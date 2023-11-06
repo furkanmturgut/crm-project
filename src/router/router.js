@@ -60,6 +60,16 @@ const routes = [
     props: true,
     meta: { requiresAuth: true, title: "Talep Yanıtları" },
   },
+  {
+    path: "/chat",
+    name: "ChatView",
+    component: () => import("@/views/chat/ChatView.vue"),
+    props: true,
+    meta: { requiresAuth: true, title: "Mesajlar" },
+    children:[{
+      path:':id'
+    }]
+  },
 ];
 
 const router = createRouter({

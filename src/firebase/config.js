@@ -5,7 +5,8 @@ const firebaseConfig = {
   projectId: "crm-trkv",
   storageBucket: "crm-trkv.appspot.com",
   messagingSenderId: "182146763135",
-  appId: "1:182146763135:web:64eb0e86bdbe144f63324a"
+  appId: "1:182146763135:web:64eb0e86bdbe144f63324a",
+  databaseURL: "https://crm-trkv-default-rtdb.europe-west1.firebasedatabase.app",
 };
 const app = initializeApp(firebaseConfig);
 export {app}

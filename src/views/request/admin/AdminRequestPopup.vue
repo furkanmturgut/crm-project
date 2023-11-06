@@ -208,9 +208,4 @@ label {
   color: gray;
 }
 
-.request-div {
-  width: 100%;
-  border: 1px solid #d9dee2;
-  height: 50px
-}
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <PVDialog :closeDialog="closeDialog" :header="'Profil'" :style="'width:30vw; height:50vh;'" :btnLabel="'Düzenle'"
+    <PVDialog :closeDialog="closeDialog" :header="'Profil'" :style="'width:30vw; height:60vh;'" :btnLabel="'Düzenle'"
         @onSubmit="saveProfile">
         <template #dialogForm>
             <form @submit.prevent="saveProfile">
@@ -18,8 +18,8 @@
 
                     <label>Parola</label>
                     <span class="p-input-icon-right">
-                        <i class="pi pi-pass" style="margin-top: -8px;" />
-                        <TInputText style="width: 100%;"></TInputText>
+                        <i class="pi pi-unlock" style="margin-top: -8px;" />
+                        <TInputText style="width: 100%;" type="password"></TInputText>
                     </span>
                 </div>
 

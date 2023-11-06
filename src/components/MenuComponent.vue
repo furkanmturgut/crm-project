@@ -43,6 +43,7 @@ export default {
             { id: 6, label: 'Projeler & Ürünler', active: false, icons: 'pi pi-folder-open', isAdmins: true },
             { id: 9, label: 'Projelerim', active: false, icons: 'pi pi-folder-open', isUsers: true },
             { id: 10, label: 'Talep Durumu', active: false, icons: 'pi pi-file-edit', isUsers: true },
+            { id: 11, label: 'Mesajlar', active:false, icons:'pi pi-cloud', isAdmins:true,isUsers:true }
         ]);
         const itemsControl = ref([]);
 
@@ -69,7 +70,7 @@ export default {
                 } else if (index == 2) {
                     router.push({ name: "CustomerView" });
                 } else if (index == 3) {
-                    router.push({name:"ReplyView"})
+                    router.push({ name: "ReplyView" })
                 } else if (index == 8) {
                     router.push({ name: "OffersView" });
                 } else if (index == 5) {
@@ -84,7 +85,7 @@ export default {
                 if (index == 10) {
                     router.push({ name: "CreateRequestView" });
                 } else if (index == 11) {
-                    console.log("Bildirim");
+                   router.push({name:"ChatView"})
                 }
             }
         }
