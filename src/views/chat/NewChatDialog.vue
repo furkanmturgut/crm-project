@@ -1,5 +1,5 @@
 <template>
-    <PVDialog :btnLabel="'Gönder'" :closeDialog="closeDialog" @onSubmit="sendChat"
+    <PVDialog :btnLabel="'Gönder'" :header="'Mesaj Oluştur'" :closeDialog="closeDialog" @onSubmit="sendChat"
         :style="isUser ? 'width:30vw; height:35vh;' : 'width:30vw; height:60vh;'">
         <template #dialogForm>
             <form @submit.prevent="sendChat">
@@ -20,7 +20,7 @@
 <script>
 import PVDialog from '@/components/PVDialog.vue';
 import { app } from "@/firebase/config";
-import { getFirestore, query, collection, getDocs, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, query, collection, getDocs } from 'firebase/firestore';
 import { getDatabase, ref as RDref, set } from "firebase/database";
 import { ref } from "vue";
 import { uid } from 'uid';
@@ -57,28 +57,27 @@ export default {
         getCustomerList();
 
         const sendChat = () => {
-            // Admin
             if (props.isUser) {
-                set(RDref(realtime, "ADMIN"+"/"+ auth.currentUser.displayName+ "/" + uid()), {
+                set(RDref(realtime, "ADMIN" + "/" + auth.currentUser.displayName + "/" + Date.now()), {
                     company: auth.currentUser.displayName,
                     myId: auth.currentUser.uid,
-                    toUser:"ADMIN",
+                    toUser: "ADMIN",
                     message: textMsg.value,
                     msgId: uid(),
-                    date: serverTimestamp()
+                    date: Date.now()
                 }).then(() => {
                     toastSuccess("Mesaj Gönderildi")
                 }).catch(() => {
                     toastError("Mesaj Gönderilemedi!")
                 });
             } else {
-                set(RDref(realtime, "ADMIN"+"/"+ selectCompany.value.compName+ "/" + uid()), {
+                set(RDref(realtime, "ADMIN" + "/" + selectCompany.value.compName + "/" + Date.now()), {
                     company: selectCompany.value.compName,
                     myId: auth.currentUser.uid,
                     message: textMsg.value,
                     msgId: uid(),
-                    toUser:"USER",
-                    date: serverTimestamp()
+                    toUser: "USER",
+                    date: Date.now()
                 }).then(() => {
                     toastSuccess("Mesaj Gönderildi")
                 }).catch(() => {
@@ -89,7 +88,6 @@ export default {
 
         return { customerList, selectCompany, textMsg, sendChat }
     }
-
 }
 </script>
 
