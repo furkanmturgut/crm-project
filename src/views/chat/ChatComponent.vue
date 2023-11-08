@@ -1,11 +1,6 @@
 <template>
     <div class="chat-component">
-        <div class="chat-header">
-            <div style="display: flex; align-items: center;">
-                <i class="pi pi-circle-fill" style="color:greenyellow;"></i>
-                <small style="margin-left:10px; font-weight: bold; color:white;">Çevrimiçi</small>
-            </div>
-        </div>
+        <div class="chat-header"></div>
         <div class="chat-area">
             <div v-for="(item) in selectedMessages" :key="item.id">
                 <div class="my-to" v-if="item.myId === myId">
@@ -18,14 +13,19 @@
         </div>
 
         <div class="send-to-chat">
-            <TInputText placeholder="Mesaj gir..." class="input-style"></TInputText>
-            <TButton class="btn-style" icon="pi pi-send"></TButton>
+            <TInputText placeholder="Mesaj gir..." v-model="messageText" class="input-style"></TInputText>
+            <TButton class="btn-style" icon="pi pi-send" @click="sendMessage"></TButton>
         </div>
 
     </div>
 </template>
 
 <script>
+import { getDatabase, set, ref as RDref } from 'firebase/database';
+import { getAuth } from 'firebase/auth';
+import { app } from "@/firebase/config";
+import { ref } from 'vue';
+import { uid } from 'uid';
 export default {
     props: {
         selectedMessages: {
@@ -35,9 +35,34 @@ export default {
         myId: {
             type: String,
             required: true
-        }
+        },
+        companyName: {
+            type: String,
+            required: true
+        },
     },
     name: "ChatComponent",
+    setup(props) {
+        const realtime = getDatabase(app);
+        const auth = getAuth(app);
+        const messageText = ref('');
+
+        const sendMessage = () => {
+            if (props.companyName) {
+                set(RDref(realtime, "ADMIN/" + props.companyName + "/" + Date.now()), {
+                    company: props.companyName,
+                    myId: auth.currentUser.uid,
+                    message: messageText.value,
+                    msgId: uid(),
+                    toUser: "USER",
+                    date: Date.now()
+                });
+                messageText.value = "";
+            }
+        }
+
+        return { messageText, sendMessage }
+    }
 }
 </script>
 
@@ -67,13 +92,14 @@ span {
 
 .send-to-chat {
     display: flex;
+    justify-content: center;
     width: 100%;
     height: 50px;
-    background-color: darkmagenta;
+    background-color: turquoise;
 }
 
 .chat-header {
-    background-color: gray;
+    background-image: url("../../assets/favicon.png");
     height: 50px;
     display: flex;
     flex-direction: row;
@@ -85,11 +111,12 @@ span {
     height: max-content;
     padding: 10px;
     margin: 10px 0;
-    background-color: darkmagenta;
+    background-color: #e7effa;
     margin-left: auto;
     margin-right: 20px;
     border-radius: 10px;
-    color: white;
+    color: black;
+    font-weight: bold;
 }
 
 .my-right {
@@ -97,8 +124,9 @@ span {
     height: max-content;
     padding: 10px;
     margin: 10px 0;
-    background-color: darkmagenta;
-    color: white;
+    background-color: #bdd3f1;
+    color: black;
+    font-weight: bold;
     margin-left: 20px;
     margin-right: auto;
     border-radius: 10px;
@@ -108,8 +136,8 @@ span {
     width: 100%;
     scroll-behavior: auto;
     overflow: hidden;
-    background-color: gray;
-    border: 2px solid darkmagenta;
+    background-image: url("../../assets/favicon.png");
+    border: 2px solid turquoise;
 }
 
 @media only screen and (max-width:700px) {
@@ -117,7 +145,7 @@ span {
         display: flex;
         width: 80%;
         height: 50px;
-        background-color: darkmagenta;
+        background-color: turquoise;
         position: fixed;
         bottom: 0;
     }

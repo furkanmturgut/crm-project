@@ -11,17 +11,17 @@
                 </PVButton>
             </div>
             <div class="chat-list" v-for="(companyMessages, companyName) in messageList" :key="companyMessages.id">
-                <div style="display: flex; align-items: center;" @click="startChat(companyMessages)">
+                <div style="display: flex; align-items: center;" @click="startChat(companyMessages, companyName)">
                     <img src="../../../src/assets/favicon.png" style="height: 30px;">
                     <div style="display: flex; flex-direction: column; margin-left: 10px;">
                         <span class="company-name">{{ isUser ? 'ADMIN' : companyName }}</span>
-                        <span>{{ companyMessages[Object.keys(companyMessages)[0]].message }}</span>
+                        <span>{{ companyMessages[Object.keys(companyMessages)[1]].message }}</span>
                     </div>
                 </div>
             </div>
         </div>
         <div class="chat-area" v-if="selectChat">
-            <chat-component :selectedMessages="selectedMessage" :myId="myId"></chat-component>
+            <chat-component :selectedMessages="selectedMessage" :myId="myId" :companyName="compName"></chat-component>
         </div>
     </div>
 </template>
@@ -43,16 +43,20 @@ export default {
         const auth = getAuth(app);
         const messageList = ref([]);
         const isUser = ref(false);
+        const compName = ref();
         const myId = ref(auth.currentUser.uid);
         const userControl = () => {
             if (auth.currentUser.displayName !== null) {
                 isUser.value = true;
             }
-            console.log(auth.currentUser)
         }
 
         userControl();
         onMounted(() => {
+            getData();
+        });
+
+        const getData = () => {
             const mostViewedPosts = query(RDref(realtime, 'ADMIN/'), orderByValue("date"));
             onValue(mostViewedPosts, (snapshot) => {
                 const data = snapshot.val();
@@ -69,7 +73,7 @@ export default {
                     }
                 }
             });
-        });
+        }
 
         const isDialog = ref(false);
         const closeDialog = () => {
@@ -77,12 +81,13 @@ export default {
         }
         const selectChat = ref(false);
         const selectedMessage = ref([]);
-        const startChat = (companyMessages) => {
+        const startChat = (companyMessages, companyName) => {
             selectChat.value = !selectChat.value;
             selectedMessage.value = companyMessages;
+            compName.value = companyName;
         }
 
-        return { closeDialog, isDialog, messageList, isUser, startChat, selectChat, selectedMessage, myId }
+        return { closeDialog, isDialog, messageList, isUser, startChat, selectChat, selectedMessage, myId, compName,getData }
     }
 
 }
@@ -147,4 +152,5 @@ export default {
         font-size: 12px;
     }
 
-}</style>
+}
+</style>

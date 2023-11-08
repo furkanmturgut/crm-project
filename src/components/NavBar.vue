@@ -112,8 +112,7 @@ export default {
                     notificationItem.value = [];
                     notificationItem.value.push(
                     { icon: 'pi pi-info-circle', label: data.value.length + ' adet bekleyen talebiniz var.' },
-                    { icon: 'pi pi-hourglass', label: 3 + ' adet bekleyen talebiniz var.' },
-                    { icon: 'pi pi-comment', label: 2 + ' adet bekleyen mesajınız var.' }
+                    { icon: 'pi pi-hourglass', label: 3 + ' adet bekleyen görüşme var.' },
                 );
                 }else if(props.companyName === null) {
                     const filteredData = data.value.filter((item) => {
@@ -124,8 +123,7 @@ export default {
                     notificationItem.value = [];
                     notificationItem.value.push(
                     { icon: 'pi pi-info-circle', label: data.value.length + ' adet bekleyen talebiniz var.' },
-                    { icon: 'pi pi-hourglass', label: 3 + ' adet bekleyen talebiniz var.' },
-                    { icon: 'pi pi-comment', label: 2 + ' adet bekleyen mesajınız var.' }
+                    { icon: 'pi pi-hourglass', label: 3 + ' adet bekleyen görüşme var.' },
                 );
                 }
             });
